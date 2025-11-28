@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Send, User, Bot, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -37,108 +37,22 @@ export function AIChat() {
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Initial greeting
-  useEffect(() => {
-    if (step === 0) {
-      addMessage({
-        sender: 'ai',
-        text: 'Olá! Sou o seu assistente inteligente e estou aqui para ajudar a compreender a respiração do seu filho. Por favor, responda às minhas perguntas para uma avaliação inicial. Lembre-se, não faço diagnósticos, apenas ofereço orientação.',
-      })
-      setTimeout(() => nextStep(), 1000)
-    }
-  }, [])
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    if (scrollRef.current) {
-      const scrollContainer = scrollRef.current.querySelector(
-        '[data-radix-scroll-area-viewport]',
-      )
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight
-      }
-    }
-  }, [messages, isLoading])
-
-  const addMessage = (msg: Omit<Message, 'id'>) => {
+  const addMessage = useCallback((msg: Omit<Message, 'id'>) => {
     setMessages((prev) => [
       ...prev,
       { ...msg, id: Math.random().toString(36).substring(7) },
     ])
-  }
+  }, [])
 
-  const handleOptionClick = (option: string) => {
-    addMessage({ sender: 'user', text: option })
-    processInput(option)
-  }
-
-  const handleSend = () => {
-    if (!inputValue.trim()) return
-    addMessage({ sender: 'user', text: inputValue })
-    processInput(inputValue)
-    setInputValue('')
-  }
-
-  const processInput = async (input: string) => {
+  const finishEvaluation = useCallback(async () => {
     setIsLoading(true)
-    // Simulate AI thinking delay
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    toast.success('Informações recebidas com sucesso!')
+    navigate('/agendamento')
+  }, [navigate])
 
-    switch (step) {
-      case 1: // Age
-        setUserData((prev) => ({ ...prev, age: input }))
-        nextStep()
-        break
-      case 2: // Signs
-        setUserData((prev) => ({ ...prev, signs: [input] })) // Simplified for demo
-        nextStep()
-        break
-      case 3: // Sleep
-        setUserData((prev) => ({ ...prev, sleep: input }))
-        nextStep()
-        break
-      case 4: // Posture
-        setUserData((prev) => ({ ...prev, posture: input }))
-        nextStep()
-        break
-      case 5: // Allergy
-        setUserData((prev) => ({ ...prev, allergy: input }))
-        nextStep()
-        break
-      case 6: // Evaluated
-        setUserData((prev) => ({ ...prev, evaluated: input }))
-        nextStep()
-        break
-      case 7: // Risk Assessment (Internal step, no user input needed really, but we transition)
-        // Logic handled in nextStep
-        break
-      case 8: // Lead Capture - Name
-        setUserData((prev) => ({ ...prev, name: input }))
-        addMessage({
-          sender: 'ai',
-          text: 'Obrigado. Qual é o seu melhor email para contato?',
-        })
-        setStep(9)
-        break
-      case 9: // Lead Capture - Email
-        setUserData((prev) => ({ ...prev, email: input }))
-        addMessage({
-          sender: 'ai',
-          text: 'E por fim, um número de telefone ou WhatsApp?',
-        })
-        setStep(10)
-        break
-      case 10: // Lead Capture - Phone & Finish
-        setUserData((prev) => ({ ...prev, phone: input }))
-        finishEvaluation()
-        break
-      default:
-        break
-    }
-    setIsLoading(false)
-  }
-
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     const currentStep = step + 1
     setStep(currentStep)
 
@@ -201,7 +115,7 @@ export function AIChat() {
           options: ['Sim', 'Não'],
         })
         break
-      case 7:
+      case 7: {
         // Risk Calculation Logic (Mock)
         const riskLevel = 'moderado' // Mock logic
         addMessage({
@@ -222,16 +136,108 @@ export function AIChat() {
           }, 1000)
         }, 1500)
         break
+      }
+      default:
+        break
     }
+  }, [step, addMessage])
+
+  const processInput = useCallback(
+    async (input: string) => {
+      setIsLoading(true)
+      // Simulate AI thinking delay
+      await new Promise((resolve) => setTimeout(resolve, 800))
+
+      switch (step) {
+        case 1: // Age
+          setUserData((prev) => ({ ...prev, age: input }))
+          nextStep()
+          break
+        case 2: // Signs
+          setUserData((prev) => ({ ...prev, signs: [input] })) // Simplified for demo
+          nextStep()
+          break
+        case 3: // Sleep
+          setUserData((prev) => ({ ...prev, sleep: input }))
+          nextStep()
+          break
+        case 4: // Posture
+          setUserData((prev) => ({ ...prev, posture: input }))
+          nextStep()
+          break
+        case 5: // Allergy
+          setUserData((prev) => ({ ...prev, allergy: input }))
+          nextStep()
+          break
+        case 6: // Evaluated
+          setUserData((prev) => ({ ...prev, evaluated: input }))
+          nextStep()
+          break
+        case 7: // Risk Assessment (Internal step, no user input needed really, but we transition)
+          // Logic handled in nextStep
+          break
+        case 8: // Lead Capture - Name
+          setUserData((prev) => ({ ...prev, name: input }))
+          addMessage({
+            sender: 'ai',
+            text: 'Obrigado. Qual é o seu melhor email para contato?',
+          })
+          setStep(9)
+          break
+        case 9: // Lead Capture - Email
+          setUserData((prev) => ({ ...prev, email: input }))
+          addMessage({
+            sender: 'ai',
+            text: 'E por fim, um número de telefone ou WhatsApp?',
+          })
+          setStep(10)
+          break
+        case 10: // Lead Capture - Phone & Finish
+          setUserData((prev) => ({ ...prev, phone: input }))
+          finishEvaluation()
+          break
+        default:
+          break
+      }
+      setIsLoading(false)
+    },
+    [step, nextStep, addMessage, finishEvaluation],
+  )
+
+  const handleOptionClick = (option: string) => {
+    addMessage({ sender: 'user', text: option })
+    processInput(option)
   }
 
-  const finishEvaluation = async () => {
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    toast.success('Informações recebidas com sucesso!')
-    navigate('/agendamento')
+  const handleSend = () => {
+    if (!inputValue.trim()) return
+    addMessage({ sender: 'user', text: inputValue })
+    processInput(inputValue)
+    setInputValue('')
   }
+
+  // Initial greeting
+  useEffect(() => {
+    if (step === 0) {
+      addMessage({
+        sender: 'ai',
+        text: 'Olá! Sou o seu assistente inteligente e estou aqui para ajudar a compreender a respiração do seu filho. Por favor, responda às minhas perguntas para uma avaliação inicial. Lembre-se, não faço diagnósticos, apenas ofereço orientação.',
+      })
+      setTimeout(() => nextStep(), 1000)
+    }
+  }, [step, addMessage, nextStep])
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      const scrollContainer = scrollRef.current.querySelector(
+        '[data-radix-scroll-area-viewport]',
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight
+      }
+    }
+  }, [messages, isLoading])
 
   return (
     <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white rounded-xl shadow-xl border border-border overflow-hidden">
