@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { SpecialistFinder } from '@/components/SpecialistFinder'
 
 const QuemSomos = () => {
   const team = [
@@ -71,6 +72,20 @@ const QuemSomos = () => {
             </Card>
           ))}
         </div>
+      </section>
+
+      {/* Specialists Map Section */}
+      <section className="container mx-auto px-4">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <h2 className="text-3xl font-bold mb-4">
+            Encontre um Especialista em Portugal
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Nossa rede de especialistas credenciados está pronta para ajudar.
+            Encontre o profissional mais próximo de si.
+          </p>
+        </div>
+        <SpecialistFinder />
       </section>
 
       {/* Mission */}
