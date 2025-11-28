@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -14,29 +14,62 @@ import Avaliacao from './pages/Avaliacao'
 import Agendamento from './pages/Agendamento'
 import NotFound from './pages/NotFound'
 
-const App = () => (
-  <BrowserRouter
-    future={{ v7_startTransition: false, v7_relativeSplatPath: false }}
-  >
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <Index />,
+      },
+      {
+        path: '/quem-somos',
+        element: <QuemSomos />,
+      },
+      {
+        path: '/problema',
+        element: <Problema />,
+      },
+      {
+        path: '/tratamentos',
+        element: <Tratamentos />,
+      },
+      {
+        path: '/blog',
+        element: <Blog />,
+      },
+      {
+        path: '/blog/:id',
+        element: <BlogPost />,
+      },
+      {
+        path: '/contactos',
+        element: <Contactos />,
+      },
+      {
+        path: '/avaliacao',
+        element: <Avaliacao />,
+      },
+      {
+        path: '/agendamento',
+        element: <Agendamento />,
+      },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
+])
+
+const App = () => {
+  return (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Index />} />
-          <Route path="/quem-somos" element={<QuemSomos />} />
-          <Route path="/problema" element={<Problema />} />
-          <Route path="/tratamentos" element={<Tratamentos />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogPost />} />
-          <Route path="/contactos" element={<Contactos />} />
-          <Route path="/avaliacao" element={<Avaliacao />} />
-          <Route path="/agendamento" element={<Agendamento />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <RouterProvider router={router} />
     </TooltipProvider>
-  </BrowserRouter>
-)
+  )
+}
 
 export default App
