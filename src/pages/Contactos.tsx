@@ -1,6 +1,8 @@
+import { useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -8,35 +10,62 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Card, CardContent } from '@/components/ui/card'
-import { MapPin, Phone, Mail, Clock } from 'lucide-react'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  MessageCircle,
+  Send,
+  Loader2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 const Contactos = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500))
     toast.success(
       'Mensagem enviada com sucesso! Entraremos em contato em breve.',
     )
+    setIsSubmitting(false)
+    const form = e.target as HTMLFormElement
+    form.reset()
   }
 
   return (
-    <div className="flex flex-col gap-16 pb-16">
+    <div className="flex flex-col gap-12 pb-16 animate-fade-in">
+      {/* Hero Section */}
       <section className="bg-slate-50 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">Entre em Contato</h1>
-          <p className="text-muted-foreground text-lg">
-            Estamos aqui para ajudar você e seu filho.
+          <h1 className="text-4xl font-bold mb-4 text-foreground">
+            Entre em Contato
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Estamos aqui para ajudar você e seu filho. Agende uma consulta, tire
+            suas dúvidas ou venha nos visitar.
           </p>
         </div>
       </section>
 
       <section className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Info */}
+          {/* Contact Information */}
           <div className="space-y-8">
             <div className="grid sm:grid-cols-2 gap-6">
-              <Card>
+              {/* Phone */}
+              <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6 flex flex-col items-center text-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                     <Phone className="w-6 h-6" />
@@ -46,45 +75,71 @@ const Contactos = () => {
                     <p className="text-sm text-muted-foreground">
                       +351 210 000 000
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      +351 910 000 000 (WhatsApp)
-                    </p>
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-primary mt-1"
+                      asChild
+                    >
+                      <a href="tel:+351210000000">Ligar agora</a>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+
+              {/* WhatsApp */}
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6 flex flex-col items-center text-center gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                    <MessageCircle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-1">WhatsApp</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Atendimento Rápido
+                    </p>
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-green-600 mt-1"
+                      asChild
+                    >
+                      <a
+                        href="https://wa.me/351910000000"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Iniciar conversa
+                      </a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Email */}
+              <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6 flex flex-col items-center text-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                     <Mail className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-bold mb-1">Email</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground break-all">
                       contato@respiracaooral.pt
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      agendamento@respiracaooral.pt
-                    </p>
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-primary mt-1"
+                      asChild
+                    >
+                      <a href="mailto:contato@respiracaooral.pt">
+                        Enviar email
+                      </a>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold mb-1">Endereço</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Av. da Liberdade, 100
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      1250-144 Lisboa
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
+
+              {/* Hours */}
+              <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6 flex flex-col items-center text-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                     <Clock className="w-6 h-6" />
@@ -102,87 +157,139 @@ const Contactos = () => {
               </Card>
             </div>
 
-            {/* Map Placeholder */}
-            <div className="w-full h-64 bg-slate-200 rounded-xl overflow-hidden relative">
-              <img
-                src="https://img.usecurling.com/p/800/400?q=map%20location&dpr=2"
-                alt="Mapa"
-                className="w-full h-full object-cover opacity-50"
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Button variant="secondary">Ver no Google Maps</Button>
-              </div>
-            </div>
+            {/* Address Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6 flex items-start gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold mb-1">Nossa Localização</h3>
+                  <p className="text-muted-foreground">Av. da Liberdade, 100</p>
+                  <p className="text-muted-foreground">
+                    1250-144 Lisboa, Portugal
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Localizado no centro de Lisboa, com fácil acesso a
+                    transportes públicos e estacionamento próximo.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Form */}
-          <Card>
+          {/* Contact Form */}
+          <Card className="shadow-lg border-primary/10">
             <CardHeader>
-              <h2 className="text-2xl font-bold">Envie uma mensagem</h2>
-              <p className="text-muted-foreground">
+              <CardTitle className="text-2xl">Envie uma mensagem</CardTitle>
+              <CardDescription>
                 Preencha o formulário abaixo e responderemos o mais breve
                 possível.
-              </p>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">
-                    Nome
-                  </label>
-                  <Input id="name" placeholder="Seu nome completo" required />
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input
+                    id="name"
+                    placeholder="Seu nome"
+                    required
+                    disabled={isSubmitting}
+                  />
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">
-                      Email
-                    </label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="seu@email.com"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="phone" className="text-sm font-medium">
-                      Telefone
-                    </label>
-                    <Input id="phone" placeholder="+351..." />
+                    <Label htmlFor="phone">Telefone</Label>
+                    <Input
+                      id="phone"
+                      placeholder="+351..."
+                      disabled={isSubmitting}
+                    />
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <label htmlFor="subject" className="text-sm font-medium">
-                    Assunto
-                  </label>
-                  <Select>
+                  <Label htmlFor="subject">Assunto</Label>
+                  <Select disabled={isSubmitting}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um assunto" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="agendamento">Agendamento</SelectItem>
-                      <SelectItem value="duvida">Dúvida Geral</SelectItem>
-                      <SelectItem value="parceria">Parceria</SelectItem>
+                      <SelectItem value="agendamento">
+                        Agendamento de Consulta
+                      </SelectItem>
+                      <SelectItem value="duvida">
+                        Dúvida sobre Tratamentos
+                      </SelectItem>
+                      <SelectItem value="avaliacao">
+                        Sobre a Avaliação IA
+                      </SelectItem>
+                      <SelectItem value="parceria">Parcerias</SelectItem>
+                      <SelectItem value="outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium">
-                    Mensagem
-                  </label>
+                  <Label htmlFor="message">Mensagem</Label>
                   <Textarea
                     id="message"
                     placeholder="Como podemos ajudar?"
                     className="min-h-[120px]"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Enviar Mensagem
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 w-4 h-4" />
+                      Enviar Mensagem
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="container mx-auto px-4">
+        <div className="rounded-3xl overflow-hidden shadow-lg border border-border h-[400px] relative bg-slate-100">
+          <iframe
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            scrolling="no"
+            marginHeight={0}
+            marginWidth={0}
+            src="https://maps.google.com/maps?q=Av.+da+Liberdade,+100,+Lisboa&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            title="Localização da Clínica"
+            className="absolute inset-0 w-full h-full"
+          ></iframe>
         </div>
       </section>
     </div>
