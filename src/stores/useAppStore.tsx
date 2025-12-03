@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import { Specialist, BlogPost } from '@/types'
 import { toast } from 'sonner'
+import { slugify } from '@/lib/utils'
 
 // Initial Mock Data
 const INITIAL_SPECIALISTS: Specialist[] = [
@@ -83,6 +84,11 @@ const INITIAL_POSTS: BlogPost[] = [
     image: 'child sleeping',
     date: '28 Nov 2024',
     author: 'Dra. Ana Martins',
+    slug: '5-sinais-respiracao-oral',
+    seoTitle: '5 Sinais de Respiração Oral Infantil - Guia Completo',
+    seoDescription:
+      'Descubra se o seu filho respira pela boca. Veja os 5 principais sinais de alerta e saiba quando procurar ajuda especializada.',
+    seoKeywords: 'respiração oral, sintomas, crianças, sono infantil',
   },
   {
     id: 2,
@@ -95,6 +101,10 @@ const INITIAL_POSTS: BlogPost[] = [
     image: 'child studying',
     date: '25 Nov 2024',
     author: 'Dr. Carlos Ferreira',
+    slug: 'respiracao-desempenho-escolar',
+    seoTitle: 'Respiração Oral e Desempenho Escolar: Qual a Relação?',
+    seoDescription:
+      'Entenda como a má respiração pode afetar a concentração e o aprendizado do seu filho na escola.',
   },
   {
     id: 3,
@@ -107,6 +117,7 @@ const INITIAL_POSTS: BlogPost[] = [
     image: 'baby pacifier',
     date: '20 Nov 2024',
     author: 'Dra. Sofia Costa',
+    slug: 'chupeta-dedo-impacto-respiracao',
   },
   {
     id: 4,
@@ -119,6 +130,7 @@ const INITIAL_POSTS: BlogPost[] = [
     image: 'doctor child',
     date: '15 Nov 2024',
     author: 'Dr. Miguel Santos',
+    slug: 'tratamentos-respiracao-oral',
   },
 ]
 
@@ -166,7 +178,12 @@ export const AppStoreProvider = ({
   }, [])
 
   const addBlogPost = useCallback((data: Omit<BlogPost, 'id'>) => {
-    const newPost = { ...data, id: Date.now() }
+    const postData = { ...data }
+    if (!postData.slug) {
+      postData.slug = slugify(postData.title)
+    }
+
+    const newPost = { ...postData, id: Date.now() }
     setBlogPosts((prev) => [newPost, ...prev]) // Newest first
     toast.success('Artigo publicado com sucesso!')
   }, [])

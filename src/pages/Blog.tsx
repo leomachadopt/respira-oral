@@ -45,7 +45,7 @@ const Blog = () => {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold leading-tight hover:text-primary transition-colors">
-                  <Link to={`/blog/${post.id}`}>{post.title}</Link>
+                  <Link to={`/blog/${post.slug}`}>{post.title}</Link>
                 </h3>
               </CardHeader>
               <CardContent className="flex-grow">
@@ -55,7 +55,7 @@ const Blog = () => {
               </CardContent>
               <CardFooter>
                 <Button asChild variant="link" className="px-0 text-primary">
-                  <Link to={`/blog/${post.id}`}>Ler artigo completo</Link>
+                  <Link to={`/blog/${post.slug}`}>Ler artigo completo</Link>
                 </Button>
               </CardFooter>
             </Card>

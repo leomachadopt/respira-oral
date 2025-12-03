@@ -1,12 +1,45 @@
+import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import useAppStore from '@/stores/useAppStore'
 
 const BlogPost = () => {
-  const { id } = useParams()
+  const { slug } = useParams()
   const { blogPosts } = useAppStore()
-  const post = blogPosts.find((p) => p.id === Number(id))
+  const post = blogPosts.find((p) => p.slug === slug)
+
+  // SEO Meta Tags Management
+  useEffect(() => {
+    if (post) {
+      // Update Title
+      const previousTitle = document.title
+      document.title = post.seoTitle || post.title
+
+      // Update Meta Description
+      let metaDescription = document.querySelector('meta[name="description"]')
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta')
+        metaDescription.setAttribute('name', 'description')
+        document.head.appendChild(metaDescription)
+      }
+      const previousDescription = metaDescription.getAttribute('content')
+      metaDescription.setAttribute(
+        'content',
+        post.seoDescription || post.excerpt,
+      )
+
+      return () => {
+        // Cleanup / Reset
+        document.title = previousTitle
+        if (previousDescription) {
+          metaDescription?.setAttribute('content', previousDescription)
+        } else {
+          metaDescription?.remove()
+        }
+      }
+    }
+  }, [post])
 
   if (!post) {
     return (
@@ -20,7 +53,7 @@ const BlogPost = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl">
+    <div className="container mx-auto px-4 py-12 max-w-3xl animate-fade-in">
       <Button
         asChild
         variant="ghost"

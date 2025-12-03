@@ -21,4 +21,8 @@ export interface BlogPost {
   image: string
   date: string
   author: string
+  slug: string
+  seoTitle?: string
+  seoDescription?: string
+  seoKeywords?: string
 }
