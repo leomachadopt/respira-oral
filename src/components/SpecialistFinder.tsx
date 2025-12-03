@@ -24,86 +24,19 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-
-// Mock Data for Specialists in Portugal
-const SPECIALISTS = [
-  {
-    id: 1,
-    name: 'Dr. Carlos Ferreira',
-    role: 'Ortodontista Pediátrico',
-    city: 'Lisboa',
-    address: 'Av. da Liberdade, 100, Lisboa',
-    phone: '+351 210 000 001',
-    whatsapp: '351910000001',
-    email: 'carlos.ferreira@respiracaooral.pt',
-    coords: { top: '68%', left: '35%' },
-    image: 'male',
-    seed: 12,
-  },
-  {
-    id: 2,
-    name: 'Dra. Sofia Costa',
-    role: 'Odontopediatra',
-    city: 'Porto',
-    address: 'Rua de Santa Catarina, 200, Porto',
-    phone: '+351 220 000 002',
-    whatsapp: '351920000002',
-    email: 'sofia.costa@respiracaooral.pt',
-    coords: { top: '22%', left: '42%' },
-    image: 'female',
-    seed: 15,
-  },
-  {
-    id: 3,
-    name: 'Dr. Miguel Santos',
-    role: 'Ortodontista',
-    city: 'Coimbra',
-    address: 'Praça da República, 50, Coimbra',
-    phone: '+351 239 000 003',
-    whatsapp: '351930000003',
-    email: 'miguel.santos@respiracaooral.pt',
-    coords: { top: '42%', left: '45%' },
-    image: 'male',
-    seed: 20,
-  },
-  {
-    id: 4,
-    name: 'Dra. Inês Silva',
-    role: 'Dentista do Sono',
-    city: 'Faro',
-    address: 'Rua de Santo António, 30, Faro',
-    phone: '+351 289 000 004',
-    whatsapp: '351960000004',
-    email: 'ines.silva@respiracaooral.pt',
-    coords: { top: '88%', left: '55%' },
-    image: 'female',
-    seed: 25,
-  },
-  {
-    id: 5,
-    name: 'Dr. Ricardo Oliveira',
-    role: 'Ortodontista',
-    city: 'Braga',
-    address: 'Av. Central, 10, Braga',
-    phone: '+351 253 000 005',
-    whatsapp: '351910000005',
-    email: 'ricardo.oliveira@respiracaooral.pt',
-    coords: { top: '15%', left: '45%' },
-    image: 'male',
-    seed: 30,
-  },
-]
+import useAppStore from '@/stores/useAppStore'
 
 export function SpecialistFinder() {
+  const { specialists } = useAppStore()
   const [selectedCity, setSelectedCity] = useState<string>('all')
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
   const filteredSpecialists = useMemo(() => {
-    if (selectedCity === 'all') return SPECIALISTS
-    return SPECIALISTS.filter((s) => s.city === selectedCity)
-  }, [selectedCity])
+    if (selectedCity === 'all') return specialists
+    return specialists.filter((s) => s.city === selectedCity)
+  }, [selectedCity, specialists])
 
-  const cities = Array.from(new Set(SPECIALISTS.map((s) => s.city)))
+  const cities = Array.from(new Set(specialists.map((s) => s.city)))
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -222,7 +155,7 @@ export function SpecialistFinder() {
 
         {/* Pins */}
         <div className="relative w-full h-full max-w-[400px] max-h-[800px] mx-auto">
-          {SPECIALISTS.map((specialist) => {
+          {specialists.map((specialist) => {
             const isSelected =
               selectedCity === 'all' || selectedCity === specialist.city
             if (!isSelected) return null

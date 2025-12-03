@@ -2,7 +2,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { AppStoreProvider } from '@/stores/useAppStore'
 import Layout from './components/Layout'
+import AdminLayout from './components/AdminLayout'
 import Index from './pages/Index'
 import QuemSomos from './pages/QuemSomos'
 import Problema from './pages/Problema'
@@ -13,6 +15,13 @@ import Contactos from './pages/Contactos'
 import Avaliacao from './pages/Avaliacao'
 import Agendamento from './pages/Agendamento'
 import NotFound from './pages/NotFound'
+
+// Admin Pages
+import Dashboard from './pages/admin/Dashboard'
+import SpecialistList from './pages/admin/specialists/SpecialistList'
+import SpecialistForm from './pages/admin/specialists/SpecialistForm'
+import PostList from './pages/admin/blog/PostList'
+import PostForm from './pages/admin/blog/PostForm'
 
 const router = createBrowserRouter([
   {
@@ -57,6 +66,40 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+      },
+      {
+        path: 'specialists',
+        element: <SpecialistList />,
+      },
+      {
+        path: 'specialists/new',
+        element: <SpecialistForm />,
+      },
+      {
+        path: 'specialists/:id/edit',
+        element: <SpecialistForm />,
+      },
+      {
+        path: 'blog',
+        element: <PostList />,
+      },
+      {
+        path: 'blog/new',
+        element: <PostForm />,
+      },
+      {
+        path: 'blog/:id/edit',
+        element: <PostForm />,
+      },
+    ],
+  },
+  {
     path: '*',
     element: <NotFound />,
   },
@@ -64,11 +107,13 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <RouterProvider router={router} />
-    </TooltipProvider>
+    <AppStoreProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <RouterProvider router={router} />
+      </TooltipProvider>
+    </AppStoreProvider>
   )
 }
 

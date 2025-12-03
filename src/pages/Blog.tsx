@@ -2,46 +2,10 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import useAppStore from '@/stores/useAppStore'
 
 const Blog = () => {
-  const posts = [
-    {
-      id: 1,
-      title: '5 Sinais de que seu filho respira pela boca',
-      excerpt:
-        'Aprenda a identificar os sinais sutis que indicam problemas respiratórios durante o dia e a noite.',
-      category: 'Sintomas',
-      image: 'child sleeping',
-      date: '28 Nov 2024',
-    },
-    {
-      id: 2,
-      title: 'Como a respiração afeta o desempenho escolar',
-      excerpt:
-        'A falta de oxigenação adequada e o sono ruim podem ser os vilões das notas baixas.',
-      category: 'Educação',
-      image: 'child studying',
-      date: '25 Nov 2024',
-    },
-    {
-      id: 3,
-      title: 'Chupeta e Dedo: O impacto na respiração',
-      excerpt:
-        'Entenda como hábitos orais podem deformar a arcada dentária e forçar a respiração oral.',
-      category: 'Prevenção',
-      image: 'baby pacifier',
-      date: '20 Nov 2024',
-    },
-    {
-      id: 4,
-      title: 'Tratamentos modernos para respiração oral',
-      excerpt:
-        'Conheça as novas abordagens que evitam cirurgias em muitos casos.',
-      category: 'Tratamento',
-      image: 'doctor child',
-      date: '15 Nov 2024',
-    },
-  ]
+  const { blogPosts } = useAppStore()
 
   return (
     <div className="flex flex-col gap-12 pb-16">
@@ -56,7 +20,7 @@ const Blog = () => {
 
       <section className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post) => (
+          {blogPosts.map((post) => (
             <Card
               key={post.id}
               className="overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"

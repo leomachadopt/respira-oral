@@ -1,0 +1,62 @@
+import { Link } from 'react-router-dom'
+import { Users, FileText, ArrowRight } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import useAppStore from '@/stores/useAppStore'
+
+export default function Dashboard() {
+  const { specialists, blogPosts } = useAppStore()
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground">Visão geral do sistema</p>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-6">
+        {/* Professionals Stats */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total de Profissionais
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{specialists.length}</div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Especialistas registados
+            </p>
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link to="/admin/specialists">
+                Gerir Profissionais <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Blog Stats */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total de Artigos
+            </CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{blogPosts.length}</div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Artigos publicados
+            </p>
+            <Button asChild variant="outline" size="sm" className="w-full">
+              <Link to="/admin/blog">
+                Gerir Artigos <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
