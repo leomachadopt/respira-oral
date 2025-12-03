@@ -36,19 +36,19 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm py-2'
-          : 'bg-transparent py-4',
+          ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b border-border/50 py-3'
+          : 'bg-transparent py-5',
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl transition-transform group-hover:scale-105">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white font-bold text-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg">
             R
           </div>
-          <span className="font-bold text-xl text-primary hidden sm:block">
+          <span className="font-bold text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:block">
             Respiração Oral
           </span>
         </Link>
@@ -75,7 +75,7 @@ export function Header() {
         <div className="hidden lg:block">
           <Button
             asChild
-            className="rounded-full bg-primary hover:bg-primary/90 transition-transform hover:scale-105"
+            className="rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 hover:scale-105 shadow-md"
           >
             <Link to="/avaliacao">
               <MessageCircle className="w-4 h-4 mr-2" />

@@ -3,7 +3,7 @@ import { Specialist, BlogPost } from '@/types'
 import { toast } from 'sonner'
 import { slugify } from '@/lib/utils'
 
-// Initial Mock Data
+// Initial Mock Data - Coordenadas GPS reais das cidades em Portugal
 const INITIAL_SPECIALISTS: Specialist[] = [
   {
     id: 1,
@@ -14,7 +14,7 @@ const INITIAL_SPECIALISTS: Specialist[] = [
     phone: '+351 210 000 001',
     whatsapp: '351910000001',
     email: 'carlos.ferreira@respiracaooral.pt',
-    coords: { top: '68%', left: '35%' },
+    coords: { lat: 38.7223, lng: -9.1393 }, // Lisboa
     image: 'male',
     seed: 12,
   },
@@ -27,7 +27,7 @@ const INITIAL_SPECIALISTS: Specialist[] = [
     phone: '+351 220 000 002',
     whatsapp: '351920000002',
     email: 'sofia.costa@respiracaooral.pt',
-    coords: { top: '22%', left: '42%' },
+    coords: { lat: 41.1579, lng: -8.6291 }, // Porto
     image: 'female',
     seed: 15,
   },
@@ -40,7 +40,7 @@ const INITIAL_SPECIALISTS: Specialist[] = [
     phone: '+351 239 000 003',
     whatsapp: '351930000003',
     email: 'miguel.santos@respiracaooral.pt',
-    coords: { top: '42%', left: '45%' },
+    coords: { lat: 40.2033, lng: -8.4103 }, // Coimbra
     image: 'male',
     seed: 20,
   },
@@ -53,7 +53,7 @@ const INITIAL_SPECIALISTS: Specialist[] = [
     phone: '+351 289 000 004',
     whatsapp: '351960000004',
     email: 'ines.silva@respiracaooral.pt',
-    coords: { top: '88%', left: '55%' },
+    coords: { lat: 37.0194, lng: -7.9304 }, // Faro
     image: 'female',
     seed: 25,
   },
@@ -66,9 +66,23 @@ const INITIAL_SPECIALISTS: Specialist[] = [
     phone: '+351 253 000 005',
     whatsapp: '351910000005',
     email: 'ricardo.oliveira@respiracaooral.pt',
-    coords: { top: '15%', left: '45%' },
+    coords: { lat: 41.5454, lng: -8.4265 }, // Braga
     image: 'male',
     seed: 30,
+  },
+  {
+    id: 6,
+    name: 'Dra. Cristiane Martins',
+    role: 'Ortodontista | Invisalign Provider',
+    city: 'Oliveira de Azeméis',
+    address: 'Rua Artur Correia Barbosa, 111, Oliveira de Azeméis',
+    phone: '+351 918 233 310',
+    whatsapp: '351918233310',
+    email: 'clinicadentariavitoria@hotmail.com',
+    coords: { lat: 40.8396, lng: -8.4733 }, // Oliveira de Azeméis
+    image: 'female',
+    seed: 35,
+    customImage: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=faces',
   },
 ]
 
@@ -152,9 +166,39 @@ export const AppStoreProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [specialists, setSpecialists] =
-    useState<Specialist[]>(INITIAL_SPECIALISTS)
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(INITIAL_POSTS)
+  // Load from localStorage or use initial data
+  const [specialists, setSpecialists] = useState<Specialist[]>(() => {
+    const stored = localStorage.getItem('specialists')
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {
+        return INITIAL_SPECIALISTS
+      }
+    }
+    return INITIAL_SPECIALISTS
+  })
+
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
+    const stored = localStorage.getItem('blogPosts')
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {
+        return INITIAL_POSTS
+      }
+    }
+    return INITIAL_POSTS
+  })
+
+  // Persist to localStorage whenever data changes
+  React.useEffect(() => {
+    localStorage.setItem('specialists', JSON.stringify(specialists))
+  }, [specialists])
+
+  React.useEffect(() => {
+    localStorage.setItem('blogPosts', JSON.stringify(blogPosts))
+  }, [blogPosts])
 
   const addSpecialist = useCallback((data: Omit<Specialist, 'id'>) => {
     const newSpecialist = { ...data, id: Date.now() }

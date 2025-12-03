@@ -32,59 +32,16 @@ const QuemSomos = () => {
       <section className="bg-slate-50 py-20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6 text-foreground">
-            Especialistas Dedicados à Saúde Respiratória Infantil
+            Rede de Especialistas em Respiração Oral
           </h1>
           <p className="text-xl text-muted-foreground">
-            Somos uma equipa multidisciplinar unida por uma missão: garantir que
-            cada criança respire livremente para crescer com saúde.
+            Conectamos famílias a profissionais qualificados em todo o país para tratar a respiração oral infantil com excelência.
           </p>
-        </div>
-      </section>
-
-      {/* Team */}
-      <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          Conheça a Nossa Equipa
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {team.map((member, i) => (
-            <Card
-              key={i}
-              className="text-center hover:shadow-lg transition-shadow duration-300"
-            >
-              <CardContent className="pt-8 pb-8 px-6 flex flex-col items-center gap-4">
-                <Avatar className="w-32 h-32 border-4 border-white shadow-md">
-                  <AvatarImage
-                    src={`https://img.usecurling.com/ppl/medium?gender=${member.img}&seed=${i + 10}`}
-                  />
-                  <AvatarFallback>{member.name[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="text-xl font-bold text-primary">
-                    {member.name}
-                  </h3>
-                  <p className="text-sm font-semibold text-muted-foreground mb-2">
-                    {member.role}
-                  </p>
-                  <p className="text-sm text-foreground/80">{member.bio}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
 
       {/* Specialists Map Section */}
       <section className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold mb-4">
-            Encontre um Especialista em Portugal
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Nossa rede de especialistas credenciados está pronta para ajudar.
-            Encontre o profissional mais próximo de si.
-          </p>
-        </div>
         <SpecialistFinder />
       </section>
 

@@ -7,9 +7,10 @@ export interface Specialist {
   phone: string
   whatsapp: string
   email: string
-  coords: { top: string; left: string }
+  coords: { lat: number; lng: number }
   image: 'male' | 'female'
   seed: number
+  customImage?: string // URL da foto personalizada
 }
 
 export interface BlogPost {
