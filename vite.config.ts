@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: '::',
     port: 8080,
+    fs: {
+      // Evita que o Vite sirva arquivos da pasta api (são serverless functions)
+      deny: ['**/api/**'],
+    },
   },
   experimental: {
     enableNativePlugin: true

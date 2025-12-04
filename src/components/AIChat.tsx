@@ -576,7 +576,7 @@ export function AIChat() {
               isLoading ||
               (messages.length > 0 &&
                 currentMessage?.type === 'options' &&
-                !isMultiSelect)
+                !currentMessage?.multiSelect)
             }
           />
           <Button
