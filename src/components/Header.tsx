@@ -29,7 +29,6 @@ export function Header() {
     { name: 'Quem Somos', path: '/quem-somos' },
     { name: 'Problema', path: '/problema' },
     { name: 'Blog', path: '/blog' },
-    { name: 'Contactos', path: '/contactos' },
   ]
 
   return (

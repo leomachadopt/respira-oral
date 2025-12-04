@@ -10,7 +10,6 @@ import QuemSomos from './pages/QuemSomos'
 import Problema from './pages/Problema'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
-import Contactos from './pages/Contactos'
 import Avaliacao from './pages/Avaliacao'
 import ResultadoAvaliacao from './pages/ResultadoAvaliacao'
 import Agendamento from './pages/Agendamento'
@@ -48,10 +47,6 @@ const router = createBrowserRouter([
       {
         path: '/blog/:slug',
         element: <BlogPost />,
-      },
-      {
-        path: '/contactos',
-        element: <Contactos />,
       },
       {
         path: '/avaliacao',

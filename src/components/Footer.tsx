@@ -88,14 +88,6 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/contactos"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Contactos
-                </Link>
-              </li>
-              <li>
                 <span className="text-sm text-muted-foreground cursor-not-allowed">
                   Política de Privacidade
                 </span>

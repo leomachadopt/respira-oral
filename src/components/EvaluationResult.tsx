@@ -208,8 +208,7 @@ export function EvaluationResultComponent({
           <CardContent>
             <p className="text-muted-foreground">
               Não foi possível encontrar um especialista próximo da sua
-              localização. Entre em contato conosco através da página de
-              contactos para mais informações.
+              localização. Entre em contato conosco para mais informações.
             </p>
           </CardContent>
         </Card>
