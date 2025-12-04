@@ -53,6 +53,7 @@ export default async function handler(
           id: specialist.id,
           name: specialist.name,
           role: specialist.role,
+          region: specialist.region || undefined,
           city: specialist.city,
           address: specialist.address,
           phone: specialist.phone,
@@ -112,6 +113,7 @@ export default async function handler(
               id: specialist.id,
               name: specialist.name || '',
               role: specialist.role || '',
+              region: specialist.region || undefined,
               city: specialist.city || '',
               address: specialist.address || '',
               phone: specialist.phone || '',
@@ -149,6 +151,7 @@ export default async function handler(
         .values({
           name: data.name,
           role: data.role,
+          region: data.region || null,
           city: data.city,
           address: data.address,
           phone: data.phone,
@@ -167,6 +170,7 @@ export default async function handler(
         id: specialist.id,
         name: specialist.name,
         role: specialist.role,
+        region: specialist.region || undefined,
         city: specialist.city,
         address: specialist.address,
         phone: specialist.phone,
@@ -192,6 +196,7 @@ export default async function handler(
 
       if (data.name) updateData.name = data.name
       if (data.role) updateData.role = data.role
+      if (data.region !== undefined) updateData.region = data.region || null
       if (data.city) updateData.city = data.city
       if (data.address) updateData.address = data.address
       if (data.phone) updateData.phone = data.phone
@@ -223,6 +228,7 @@ export default async function handler(
         id: specialist.id,
         name: specialist.name,
         role: specialist.role,
+        region: specialist.region || undefined,
         city: specialist.city,
         address: specialist.address,
         phone: specialist.phone,

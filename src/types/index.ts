@@ -1,7 +1,10 @@
+export type PortugalRegion = 'Norte' | 'Centro' | 'Lisboa e Vale do Tejo' | 'Alentejo' | 'Algarve' | 'Açores' | 'Madeira'
+
 export interface Specialist {
   id: number
   name: string
   role: string
+  region?: PortugalRegion
   city: string
   address: string
   phone: string
@@ -31,11 +34,13 @@ export interface BlogPost {
 export interface EvaluationData {
   // Dados demográficos
   age?: string
+  region?: PortugalRegion
   location?: {
     city?: string
+    region?: PortugalRegion
     coords?: { lat: number; lng: number }
   }
-  
+
   // Indicadores clínicos
   breathingSigns?: string[]
   dentalIssues?: string[]
@@ -44,7 +49,7 @@ export interface EvaluationData {
   speechIssues?: string
   sleepQuality?: string
   previousTreatment?: string
-  
+
   // Dados de contato
   name?: string
   email?: string

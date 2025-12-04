@@ -26,11 +26,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import useAppStore from '@/stores/useAppStore'
-import { Specialist } from '@/types'
+import { Specialist, PortugalRegion } from '@/types'
+
+const PORTUGAL_REGIONS: PortugalRegion[] = [
+  'Norte',
+  'Centro',
+  'Lisboa e Vale do Tejo',
+  'Alentejo',
+  'Algarve',
+  'Açores',
+  'Madeira',
+]
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   role: z.string().min(2, 'Especialidade é obrigatória'),
+  region: z.enum(['Norte', 'Centro', 'Lisboa e Vale do Tejo', 'Alentejo', 'Algarve', 'Açores', 'Madeira'] as const).optional(),
   city: z.string().min(2, 'Cidade é obrigatória'),
   address: z.string().min(5, 'Morada completa é obrigatória'),
   phone: z.string().min(9, 'Telefone inválido'),
@@ -56,6 +67,7 @@ export default function SpecialistForm() {
     defaultValues: {
       name: '',
       role: '',
+      region: undefined,
       city: '',
       address: '',
       phone: '',
@@ -75,6 +87,7 @@ export default function SpecialistForm() {
         form.reset({
           name: specialist.name,
           role: specialist.role,
+          region: specialist.region,
           city: specialist.city,
           address: specialist.address,
           phone: specialist.phone,
@@ -130,6 +143,7 @@ export default function SpecialistForm() {
     const specialistData: Omit<Specialist, 'id'> = {
       name: data.name,
       role: data.role,
+      region: data.region,
       city: data.city,
       address: data.address,
       phone: data.phone,
@@ -212,6 +226,36 @@ export default function SpecialistForm() {
             <div className="grid sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
+                name="region"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Região</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a região" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PORTUGAL_REGIONS.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    <FormDescription>
+                      Selecione a região de Portugal onde o profissional atende
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="city"
                 render={({ field }) => (
                   <FormItem>
@@ -223,6 +267,9 @@ export default function SpecialistForm() {
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="image"

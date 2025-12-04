@@ -5,6 +5,7 @@ export const specialists = pgTable('specialists', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   role: varchar('role', { length: 255 }).notNull(),
+  region: varchar('region', { length: 50 }), // Norte, Centro, Lisboa e Vale do Tejo, Alentejo, Algarve, Açores, Madeira
   city: varchar('city', { length: 100 }).notNull(),
   address: text('address').notNull(),
   phone: varchar('phone', { length: 20 }).notNull(),
