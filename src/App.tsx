@@ -23,6 +23,7 @@ import PostList from './pages/admin/blog/PostList'
 import PostForm from './pages/admin/blog/PostForm'
 import TestimonialList from './pages/admin/testimonials/TestimonialList'
 import TestimonialForm from './pages/admin/testimonials/TestimonialForm'
+import EvaluationList from './pages/admin/evaluations/EvaluationList'
 
 const router = createBrowserRouter([
   {
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
       {
         path: 'testimonials/:id/edit',
         element: <TestimonialForm />,
+      },
+      {
+        path: 'evaluations',
+        element: <EvaluationList />,
       },
     ],
   },
