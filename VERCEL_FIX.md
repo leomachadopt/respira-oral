@@ -115,16 +115,37 @@ Para testar localmente, você pode:
 
 ### Erro 500 nas API routes
 
-- Verifique se `DATABASE_URL` está configurada no Vercel
-- Verifique os logs no painel da Vercel (Functions → Logs)
+Se você está vendo erros 500 nas API routes, siga estes passos:
+
+1. **Verifique se `DATABASE_URL` está configurada no Vercel:**
+   - Acesse o painel da Vercel → **Settings → Environment Variables**
+   - Confirme que `DATABASE_URL` está definida (não `VITE_DATABASE_URL`)
+   - Certifique-se de que está marcada para **Production**, **Preview** e **Development**
+
+2. **Verifique os logs no painel da Vercel:**
+   - Acesse **Deployments → [último deploy] → Functions**
+   - Ou vá em **Functions → [nome da função] → Logs**
+   - Procure por erros relacionados a `DATABASE_URL` ou conexão com o banco
+
+3. **Erro comum: "DATABASE_URL não está definida"**
+   - Certifique-se de que o nome é exatamente `DATABASE_URL`
+   - Após adicionar/atualizar, faça um novo deploy
+
+4. **Verifique se o schema existe:**
+   - Certifique-se de que o arquivo `api/db/schema.ts` existe
+   - Todos os arquivos na pasta `api` devem estar commitados
+
+📖 **Para mais detalhes, consulte o arquivo `API_TROUBLESHOOTING.md`**
 
 ### Erro 404 nas API routes
 
 - Verifique se o arquivo `vercel.json` está na raiz do projeto
 - Verifique se as rotas estão na pasta `/api`
+- O Vercel detecta automaticamente funções serverless na pasta `/api`
 
 ### Dados não aparecem
 
 - Verifique se o banco de dados tem dados (use `npm run db:seed` localmente)
 - Verifique os logs do navegador para erros de requisição
+- Teste as rotas diretamente: `https://respiracaooral.pt/api/specialists`
 

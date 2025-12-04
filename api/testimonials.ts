@@ -17,12 +17,14 @@ export default async function handler(
   }
 
   try {
+    // Inicializar banco de dados
+    const database = db()
     const { id } = req.query
 
     if (req.method === 'GET') {
       if (id) {
         // Buscar por ID
-        const result = await db
+        const result = await database
           .select()
           .from(testimonials)
           .where(eq(testimonials.id, Number(id)))
@@ -46,7 +48,7 @@ export default async function handler(
         })
       } else {
         // Buscar todos
-        const result = await db.select().from(testimonials)
+        const result = await database.select().from(testimonials)
 
         const testimonialsData = result.map((testimonial) => ({
           id: testimonial.id,
@@ -67,7 +69,7 @@ export default async function handler(
     if (req.method === 'POST') {
       const data = req.body
 
-      const result = await db
+      const result = await database
         .insert(testimonials)
         .values({
           name: data.name,
@@ -115,7 +117,7 @@ export default async function handler(
 
       updateData.updatedAt = new Date()
 
-      const result = await db
+      const result = await database
         .update(testimonials)
         .set(updateData)
         .where(eq(testimonials.id, Number(id)))
@@ -144,7 +146,7 @@ export default async function handler(
         return res.status(400).json({ error: 'ID é obrigatório' })
       }
 
-      await db.delete(testimonials).where(eq(testimonials.id, Number(id)))
+      await database.delete(testimonials).where(eq(testimonials.id, Number(id)))
       return res.status(200).json({ success: true })
     }
 

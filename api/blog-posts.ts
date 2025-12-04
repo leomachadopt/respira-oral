@@ -29,12 +29,14 @@ export default async function handler(
   }
 
   try {
+    // Inicializar banco de dados
+    const database = db()
     const { id, slug } = req.query
 
     if (req.method === 'GET') {
       if (slug) {
         // Buscar por slug
-        const result = await db
+        const result = await database
           .select()
           .from(blogPosts)
           .where(eq(blogPosts.slug, slug as string))
@@ -61,7 +63,7 @@ export default async function handler(
         })
       } else if (id) {
         // Buscar por ID
-        const result = await db
+        const result = await database
           .select()
           .from(blogPosts)
           .where(eq(blogPosts.id, Number(id)))
@@ -88,7 +90,7 @@ export default async function handler(
         })
       } else {
         // Buscar todos
-        const result = await db.select().from(blogPosts)
+        const result = await database.select().from(blogPosts)
 
         const postsData = result.map((post) => ({
           id: post.id,
@@ -113,7 +115,7 @@ export default async function handler(
       const data = req.body
       const postSlug = data.slug || slugify(data.title)
 
-      const result = await db
+      const result = await database
         .insert(blogPosts)
         .values({
           title: data.title,
@@ -171,7 +173,7 @@ export default async function handler(
 
       updateData.updatedAt = new Date()
 
-      const result = await db
+      const result = await database
         .update(blogPosts)
         .set(updateData)
         .where(eq(blogPosts.id, Number(id)))
@@ -203,7 +205,7 @@ export default async function handler(
         return res.status(400).json({ error: 'ID é obrigatório' })
       }
 
-      await db.delete(blogPosts).where(eq(blogPosts.id, Number(id)))
+      await database.delete(blogPosts).where(eq(blogPosts.id, Number(id)))
       return res.status(200).json({ success: true })
     }
 

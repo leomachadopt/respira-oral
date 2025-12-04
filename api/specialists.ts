@@ -17,12 +17,14 @@ export default async function handler(
   }
 
   try {
+    // Inicializar banco de dados
+    const database = db()
     const { id } = req.query
 
     if (req.method === 'GET') {
       if (id) {
         // Buscar por ID
-        const result = await db
+        const result = await database
           .select()
           .from(specialists)
           .where(eq(specialists.id, Number(id)))
@@ -52,7 +54,7 @@ export default async function handler(
         })
       } else {
         // Buscar todos
-        const result = await db.select().from(specialists)
+        const result = await database.select().from(specialists)
 
         const specialistsData = result.map((specialist) => ({
           id: specialist.id,
@@ -79,7 +81,7 @@ export default async function handler(
     if (req.method === 'POST') {
       const data = req.body
 
-      const result = await db
+      const result = await database
         .insert(specialists)
         .values({
           name: data.name,
@@ -143,7 +145,7 @@ export default async function handler(
 
       updateData.updatedAt = new Date()
 
-      const result = await db
+      const result = await database
         .update(specialists)
         .set(updateData)
         .where(eq(specialists.id, Number(id)))
@@ -178,7 +180,7 @@ export default async function handler(
         return res.status(400).json({ error: 'ID é obrigatório' })
       }
 
-      await db.delete(specialists).where(eq(specialists.id, Number(id)))
+      await database.delete(specialists).where(eq(specialists.id, Number(id)))
       return res.status(200).json({ success: true })
     }
 
