@@ -68,17 +68,34 @@ export default async function handler(
       } else {
         // Buscar todos
         console.log('Buscando todos os especialistas...')
-        let result
+        console.log('Database object:', typeof database)
+        console.log('Specialists schema:', typeof specialists)
+        let result: any[] = []
         try {
+          console.log('Iniciando query select...')
           result = await database.select().from(specialists)
-          console.log('Query executada com sucesso. Resultados:', result.length)
+          console.log('Query executada com sucesso')
+          console.log('Tipo do resultado:', typeof result)
+          console.log('É array?', Array.isArray(result))
+          console.log('Resultados:', result?.length || 0)
+          if (result && result.length > 0) {
+            console.log('Primeiro resultado (keys):', Object.keys(result[0]))
+            console.log('Primeiro resultado (lat type):', typeof result[0]?.lat)
+            console.log('Primeiro resultado (lng type):', typeof result[0]?.lng)
+          }
         } catch (queryError: any) {
           console.error('Erro ao executar query:', queryError)
+          console.error('Tipo do erro:', typeof queryError)
+          console.error('Mensagem:', queryError?.message)
           console.error('Stack:', queryError?.stack)
+          if (queryError?.cause) {
+            console.error('Causa:', queryError.cause)
+          }
           return res.status(500).json({
             error: 'Erro ao buscar especialistas',
             details: queryError?.message || 'Erro desconhecido',
             stack: queryError?.stack,
+            type: typeof queryError,
           })
         }
 
