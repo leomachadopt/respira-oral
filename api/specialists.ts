@@ -18,12 +18,25 @@ export default async function handler(
 
   try {
     // Inicializar banco de dados
-    const database = db()
+    console.log('Inicializando banco de dados...')
+    let database
+    try {
+      database = db()
+      console.log('Banco de dados inicializado com sucesso')
+    } catch (dbError: any) {
+      console.error('Erro ao inicializar banco de dados:', dbError)
+      return res.status(500).json({
+        error: 'Erro ao conectar ao banco de dados',
+        details: dbError?.message || 'Erro desconhecido',
+      })
+    }
+
     const { id } = req.query
 
     if (req.method === 'GET') {
       if (id) {
         // Buscar por ID
+        console.log('Buscando especialista por ID:', id)
         const result = await database
           .select()
           .from(specialists)
@@ -54,7 +67,9 @@ export default async function handler(
         })
       } else {
         // Buscar todos
+        console.log('Buscando todos os especialistas...')
         const result = await database.select().from(specialists)
+        console.log('Especialistas encontrados:', result.length)
 
         const specialistsData = result.map((specialist) => ({
           id: specialist.id,
