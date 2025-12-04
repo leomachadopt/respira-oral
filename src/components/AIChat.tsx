@@ -89,7 +89,7 @@ export function AIChat() {
             'Ronco ao dormir',
             'Dificuldade para respirar pelo nariz',
             'Lábios ressecados',
-            'Baba no travesseiro',
+            'Baba na almofada',
             'Olheiras profundas',
             'Nenhum destes',
           ],
@@ -115,11 +115,11 @@ export function AIChat() {
       case 6:
         addMessage({
           sender: 'ai',
-          text: 'O seu filho(a) ainda usa chupeta, chupa o dedo ou tem algum hábito oral?',
+          text: 'O seu filho(a) ainda usa chucha, chucha no dedo ou tem algum hábito oral?',
           type: 'options',
           options: [
-            'Sim, usa chupeta',
-            'Sim, chupa o dedo',
+            'Sim, usa chucha',
+            'Sim, chucha no dedo',
             'Sim, ambos',
             'Não, mas já usou',
             'Não, nunca usou',
@@ -199,7 +199,7 @@ export function AIChat() {
         } else {
           addMessage({
             sender: 'ai',
-            text: 'Infelizmente não encontramos profissionais cadastrados nesta região ainda. Vamos continuar com a avaliação e entraremos em contato.',
+            text: 'Infelizmente não encontramos profissionais cadastrados nesta região ainda. Vamos continuar com a avaliação e entraremos em contacto.',
             type: 'text',
           })
           // Pula para o próximo passo automaticamente
@@ -209,7 +209,7 @@ export function AIChat() {
       case 13:
         addMessage({
           sender: 'ai',
-          text: 'Por fim, qual é o seu melhor email para contato?',
+          text: 'Por fim, qual é o seu melhor email para contacto?',
           type: 'text',
         })
         break
@@ -635,7 +635,7 @@ export function AIChat() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Digite sua resposta..."
+            placeholder="Digite a sua resposta..."
             className="flex-1 bg-white"
             disabled={
               isLoading ||

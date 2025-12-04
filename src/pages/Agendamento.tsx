@@ -15,7 +15,7 @@ const Agendamento = () => {
           <div className="space-y-4">
             <h1 className="text-3xl font-bold text-foreground">Obrigado!</h1>
             <p className="text-muted-foreground text-lg">
-              Recebemos as suas informações. A nossa equipa entrará em contato
+              Recebemos as suas informações. A nossa equipa entrará em contacto
               em breve pelo WhatsApp ou Email para confirmar os detalhes.
             </p>
           </div>

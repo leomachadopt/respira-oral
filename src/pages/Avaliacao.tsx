@@ -9,7 +9,7 @@ const Avaliacao = () => {
         </h1>
         <p className="text-muted-foreground text-lg">
           Converse com a Dra. Ro para uma triagem inicial rápida e segura. 
-          Entenda os sinais que seu filho pode estar apresentando.
+          Entenda os sinais que o seu filho pode estar apresentando.
         </p>
       </div>
 
