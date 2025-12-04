@@ -153,10 +153,14 @@ export default async function handler(
     return res.status(405).json({ error: 'Método não permitido' })
   } catch (error: any) {
     console.error('Erro na API de testimonials:', error)
+    console.error('Stack:', error?.stack)
+    console.error('DATABASE_URL existe?', !!process.env.DATABASE_URL)
+    
     const errorMessage = error?.message || 'Erro interno do servidor'
     return res.status(500).json({ 
       error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+      details: error?.stack || 'Sem detalhes disponíveis',
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
     })
   }
 }
