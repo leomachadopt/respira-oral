@@ -1,5 +1,5 @@
-import { db } from './db/client'
-import { blogPosts } from './db/schema'
+import { db } from './db/client.js'
+import { blogPosts } from './db/schema.js'
 import { eq } from 'drizzle-orm'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 // Função slugify local para evitar dependências do frontend

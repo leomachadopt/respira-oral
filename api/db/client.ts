@@ -1,11 +1,9 @@
 import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
-import * as schema from './schema'
+import * as schema from './schema.js'
 
 // Cliente de banco de dados para API routes (serverless functions)
 // Usa DATABASE_URL (não VITE_DATABASE_URL) que é segura no servidor
-
-let dbInstance: any = null
 
 function getDatabaseUrl(): string {
   // No Vercel, use DATABASE_URL (não VITE_DATABASE_URL)
@@ -28,23 +26,16 @@ function getDatabaseUrl(): string {
   return url
 }
 
+// Criar nova instância a cada chamada para evitar problemas no Vercel
 function getDb() {
-  if (dbInstance) {
-    return dbInstance
-  }
-
   try {
     const databaseUrl = getDatabaseUrl()
-    console.log('Conectando ao banco de dados...')
-    console.log('URL (sem senha):', databaseUrl.replace(/:[^:@]+@/, ':****@'))
+    console.log('Criando nova conexão com banco de dados...')
     
     const sql = neon(databaseUrl)
-    console.log('Neon client criado')
+    const dbInstance = drizzle(sql, { schema })
     
-    dbInstance = drizzle(sql, { schema })
-    console.log('Drizzle ORM inicializado com schema')
-    
-    console.log('Conexão com banco de dados estabelecida com sucesso')
+    console.log('Conexão com banco de dados criada com sucesso')
     return dbInstance
   } catch (error: any) {
     console.error('Erro ao conectar ao banco de dados:', error)
