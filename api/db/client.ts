@@ -35,16 +35,25 @@ function getDb() {
 
   try {
     const databaseUrl = getDatabaseUrl()
-    console.log('Conectando ao banco de dados... URL:', databaseUrl.replace(/:[^:@]+@/, ':****@')) // Log sem senha
+    console.log('Conectando ao banco de dados...')
+    console.log('URL (sem senha):', databaseUrl.replace(/:[^:@]+@/, ':****@'))
     
     const sql = neon(databaseUrl)
+    console.log('Neon client criado')
+    
     dbInstance = drizzle(sql, { schema })
+    console.log('Drizzle ORM inicializado com schema')
     
     console.log('Conexão com banco de dados estabelecida com sucesso')
     return dbInstance
   } catch (error: any) {
     console.error('Erro ao conectar ao banco de dados:', error)
+    console.error('Tipo do erro:', typeof error)
+    console.error('Mensagem:', error?.message)
     console.error('Stack:', error?.stack)
+    if (error?.cause) {
+      console.error('Causa:', error.cause)
+    }
     throw new Error(`Erro ao conectar ao banco de dados: ${error?.message || 'Erro desconhecido'}`)
   }
 }

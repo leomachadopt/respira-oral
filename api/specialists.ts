@@ -68,28 +68,58 @@ export default async function handler(
       } else {
         // Buscar todos
         console.log('Buscando todos os especialistas...')
-        const result = await database.select().from(specialists)
+        let result
+        try {
+          result = await database.select().from(specialists)
+          console.log('Query executada com sucesso. Resultados:', result.length)
+        } catch (queryError: any) {
+          console.error('Erro ao executar query:', queryError)
+          console.error('Stack:', queryError?.stack)
+          return res.status(500).json({
+            error: 'Erro ao buscar especialistas',
+            details: queryError?.message || 'Erro desconhecido',
+            stack: queryError?.stack,
+          })
+        }
+
         console.log('Especialistas encontrados:', result.length)
+        
+        try {
+          const specialistsData = result.map((specialist: any) => {
+            // Tratar valores null/undefined
+            const lat = specialist.lat ? Number(specialist.lat) : 0
+            const lng = specialist.lng ? Number(specialist.lng) : 0
+            
+            return {
+              id: specialist.id,
+              name: specialist.name || '',
+              role: specialist.role || '',
+              city: specialist.city || '',
+              address: specialist.address || '',
+              phone: specialist.phone || '',
+              whatsapp: specialist.whatsapp || '',
+              email: specialist.email || '',
+              coords: {
+                lat: isNaN(lat) ? 0 : lat,
+                lng: isNaN(lng) ? 0 : lng,
+              },
+              image: specialist.image || 'male',
+              seed: specialist.seed || 0,
+              customImage: specialist.customImage || undefined,
+            }
+          })
 
-        const specialistsData = result.map((specialist) => ({
-          id: specialist.id,
-          name: specialist.name,
-          role: specialist.role,
-          city: specialist.city,
-          address: specialist.address,
-          phone: specialist.phone,
-          whatsapp: specialist.whatsapp || '',
-          email: specialist.email,
-          coords: {
-            lat: Number(specialist.lat),
-            lng: Number(specialist.lng),
-          },
-          image: specialist.image || 'male',
-          seed: specialist.seed || 0,
-          customImage: specialist.customImage || undefined,
-        }))
-
-        return res.status(200).json(specialistsData)
+          console.log('Dados processados com sucesso')
+          return res.status(200).json(specialistsData)
+        } catch (mapError: any) {
+          console.error('Erro ao processar dados:', mapError)
+          console.error('Stack:', mapError?.stack)
+          return res.status(500).json({
+            error: 'Erro ao processar dados dos especialistas',
+            details: mapError?.message || 'Erro desconhecido',
+            stack: mapError?.stack,
+          })
+        }
       }
     }
 
