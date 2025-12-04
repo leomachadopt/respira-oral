@@ -448,7 +448,6 @@ export function AIChat() {
   }, [messages, isLoading, selectedOptions])
 
   const currentMessage = messages[messages.length - 1]
-  const isMultiSelect = currentMessage?.multiSelect === true
 
   return (
     <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white rounded-xl shadow-xl border border-border overflow-hidden">
@@ -532,27 +531,30 @@ export function AIChat() {
                     )
                   })}
                 </div>
-                {isMultiSelect && (
-                  <div className="space-y-2">
+                {currentMessage?.multiSelect && (
+                  <div className="space-y-3 mt-4">
                     {selectedOptions.length > 0 && (
-                      <div className="text-sm text-muted-foreground px-2">
-                        {selectedOptions.length} opção{selectedOptions.length > 1 ? 'ões' : ''} selecionada{selectedOptions.length > 1 ? 's' : ''}
+                      <div className="text-sm text-center text-muted-foreground bg-blue-50 py-2 px-4 rounded-full">
+                        ✓ {selectedOptions.length} opção{selectedOptions.length > 1 ? 'ões' : ''} selecionada{selectedOptions.length > 1 ? 's' : ''}
                       </div>
                     )}
                     <Button
                       onClick={handleFinishMultiSelect}
                       disabled={selectedOptions.length === 0 || isLoading}
-                      className="w-full rounded-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      size="lg"
+                      className="w-full rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                           Processando...
                         </>
                       ) : selectedOptions.length > 0 ? (
-                        `Continuar (${selectedOptions.length} selecionado${selectedOptions.length > 1 ? 's' : ''})`
+                        <>
+                          Continuar com {selectedOptions.length} opç{selectedOptions.length > 1 ? 'ões' : 'ão'}
+                        </>
                       ) : (
-                        'Selecione pelo menos uma opção'
+                        'Selecione pelo menos uma opção para continuar'
                       )}
                     </Button>
                   </div>
