@@ -8,6 +8,7 @@ import { geocodeAddress, PORTUGAL_CITIES } from '@/lib/geocoding'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ImageUpload } from '@/components/ImageUpload'
 import {
   Form,
   FormControl,
@@ -253,12 +254,15 @@ export default function SpecialistForm() {
               name="customImage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL da Foto Personalizada (opcional)</FormLabel>
+                  <FormLabel>Foto do Profissional (opcional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://exemplo.com/foto.jpg" {...field} />
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Se fornecida, esta foto será usada em vez do avatar genérico
+                    Faça upload da foto do profissional. Se não fornecida, será usado um avatar genérico.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

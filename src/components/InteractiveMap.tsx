@@ -41,8 +41,8 @@ export function InteractiveMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    // Initialize map centered on Portugal
-    const map = L.map(mapRef.current).setView([39.5, -8.0], 7)
+    // Initialize map centered on Portugal Continental
+    const map = L.map(mapRef.current).setView([39.6, -8.0], 7.5)
 
     // Add tile layer (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -118,7 +118,7 @@ export function InteractiveMap({
       const bounds = L.latLngBounds(
         filteredSpecialists.map(s => [s.coords.lat, s.coords.lng])
       )
-      map.fitBounds(bounds, { padding: [50, 50] })
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 })
     }
   }, [filteredSpecialists, onSpecialistHover])
 

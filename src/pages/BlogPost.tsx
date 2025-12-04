@@ -91,7 +91,7 @@ const BlogPost = () => {
             agora mesmo.
           </p>
           <Button asChild className="rounded-full">
-            <Link to="/avaliacao">Falar com a IA</Link>
+            <Link to="/avaliacao">Falar com a Dra. Ro</Link>
           </Button>
         </div>
       </article>

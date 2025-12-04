@@ -53,8 +53,8 @@ const Contactos = () => {
             Entre em Contato
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Estamos aqui para ajudar você e seu filho. Agende uma consulta, tire
-            suas dúvidas ou venha nos visitar.
+            Estamos aqui para ajudá-lo a si e ao seu filho. Agende uma consulta, tire
+            as suas dúvidas ou venha visitar-nos.
           </p>
         </div>
       </section>
@@ -164,7 +164,7 @@ const Contactos = () => {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">Nossa Localização</h3>
+                  <h3 className="font-bold mb-1">A Nossa Localização</h3>
                   <p className="text-muted-foreground">Av. da Liberdade, 100</p>
                   <p className="text-muted-foreground">
                     1250-144 Lisboa, Portugal
@@ -193,7 +193,7 @@ const Contactos = () => {
                   <Label htmlFor="name">Nome Completo</Label>
                   <Input
                     id="name"
-                    placeholder="Seu nome"
+                    placeholder="O seu nome"
                     required
                     disabled={isSubmitting}
                   />
@@ -234,7 +234,7 @@ const Contactos = () => {
                         Dúvida sobre Tratamentos
                       </SelectItem>
                       <SelectItem value="avaliacao">
-                        Sobre a Avaliação IA
+                        Sobre a Avaliação com Dra. Ro
                       </SelectItem>
                       <SelectItem value="parceria">Parcerias</SelectItem>
                       <SelectItem value="outro">Outro</SelectItem>

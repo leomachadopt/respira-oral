@@ -5,12 +5,11 @@ const Avaliacao = () => {
     <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex flex-col items-center justify-center p-4 lg:p-8">
       <div className="text-center mb-8 max-w-2xl animate-fade-in">
         <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-foreground">
-          Avaliação Digital com IA
+          Avaliação com a Dra. Ro
         </h1>
         <p className="text-muted-foreground text-lg">
-          Converse com nosso assistente inteligente para uma triagem inicial
-          rápida e segura. Entenda os sinais que seu filho pode estar
-          apresentando.
+          Converse com a Dra. Ro para uma triagem inicial rápida e segura. 
+          Entenda os sinais que seu filho pode estar apresentando.
         </p>
       </div>
 

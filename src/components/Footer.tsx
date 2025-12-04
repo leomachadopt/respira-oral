@@ -10,16 +10,16 @@ import {
 
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-border mt-auto">
+    <footer className="bg-white border-t border-border mt-auto animate-fade-in-up">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
+          <div className="space-y-4 animate-fade-in-up">
+            <div className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 hover-glow">
                 R
               </div>
-              <span className="font-bold text-lg text-primary">
+              <span className="font-bold text-lg text-primary transition-all duration-300 group-hover:scale-105">
                 Respiração Oral
               </span>
             </div>
@@ -29,27 +29,21 @@ export function Footer() {
               tratamento multidisciplinar.
             </p>
             <div className="flex gap-4">
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-                <span className="sr-only">Facebook</span>
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-                <span className="sr-only">Instagram</span>
-              </a>
-              <a
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Linkedin className="w-5 h-5" />
-                <span className="sr-only">LinkedIn</span>
-              </a>
+              {[
+                { icon: Facebook, label: 'Facebook' },
+                { icon: Instagram, label: 'Instagram' },
+                { icon: Linkedin, label: 'LinkedIn' },
+              ].map(({ icon: Icon, label }, idx) => (
+                <a
+                  key={label}
+                  href="#"
+                  className="text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-125 hover:rotate-6"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="sr-only">{label}</span>
+                </a>
+              ))}
             </div>
           </div>
 
@@ -59,46 +53,25 @@ export function Footer() {
               Links Rápidos
             </h3>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              {[
+                { path: '/', label: 'Home' },
+                { path: '/quem-somos', label: 'Quem Somos' },
+                { path: '/problema', label: 'O Problema' },
+                { path: '/blog', label: 'Blog' },
+              ].map((link, idx) => (
+                <li 
+                  key={link.path}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/quem-somos"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Quem Somos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/problema"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  O Problema
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/tratamentos"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Tratamentos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/blog"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
+                  <Link
+                    to={link.path}
+                    className="text-sm text-muted-foreground hover:text-primary transition-all duration-300 hover:translate-x-1 inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -111,7 +84,7 @@ export function Footer() {
                   to="/avaliacao"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Avaliação Digital (IA)
+                  Avaliação com Dra. Ro
                 </Link>
               </li>
               <li>

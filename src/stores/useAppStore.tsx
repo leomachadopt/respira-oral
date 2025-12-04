@@ -1,162 +1,31 @@
-import React, { createContext, useContext, useState, useCallback } from 'react'
-import { Specialist, BlogPost } from '@/types'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from 'react'
+import { Specialist, BlogPost, Testimonial } from '@/types'
 import { toast } from 'sonner'
-import { slugify } from '@/lib/utils'
-
-// Initial Mock Data - Coordenadas GPS reais das cidades em Portugal
-const INITIAL_SPECIALISTS: Specialist[] = [
-  {
-    id: 1,
-    name: 'Dr. Carlos Ferreira',
-    role: 'Ortodontista Pediátrico',
-    city: 'Lisboa',
-    address: 'Av. da Liberdade, 100, Lisboa',
-    phone: '+351 210 000 001',
-    whatsapp: '351910000001',
-    email: 'carlos.ferreira@respiracaooral.pt',
-    coords: { lat: 38.7223, lng: -9.1393 }, // Lisboa
-    image: 'male',
-    seed: 12,
-  },
-  {
-    id: 2,
-    name: 'Dra. Sofia Costa',
-    role: 'Odontopediatra',
-    city: 'Porto',
-    address: 'Rua de Santa Catarina, 200, Porto',
-    phone: '+351 220 000 002',
-    whatsapp: '351920000002',
-    email: 'sofia.costa@respiracaooral.pt',
-    coords: { lat: 41.1579, lng: -8.6291 }, // Porto
-    image: 'female',
-    seed: 15,
-  },
-  {
-    id: 3,
-    name: 'Dr. Miguel Santos',
-    role: 'Ortodontista',
-    city: 'Coimbra',
-    address: 'Praça da República, 50, Coimbra',
-    phone: '+351 239 000 003',
-    whatsapp: '351930000003',
-    email: 'miguel.santos@respiracaooral.pt',
-    coords: { lat: 40.2033, lng: -8.4103 }, // Coimbra
-    image: 'male',
-    seed: 20,
-  },
-  {
-    id: 4,
-    name: 'Dra. Inês Silva',
-    role: 'Dentista do Sono',
-    city: 'Faro',
-    address: 'Rua de Santo António, 30, Faro',
-    phone: '+351 289 000 004',
-    whatsapp: '351960000004',
-    email: 'ines.silva@respiracaooral.pt',
-    coords: { lat: 37.0194, lng: -7.9304 }, // Faro
-    image: 'female',
-    seed: 25,
-  },
-  {
-    id: 5,
-    name: 'Dr. Ricardo Oliveira',
-    role: 'Ortodontista',
-    city: 'Braga',
-    address: 'Av. Central, 10, Braga',
-    phone: '+351 253 000 005',
-    whatsapp: '351910000005',
-    email: 'ricardo.oliveira@respiracaooral.pt',
-    coords: { lat: 41.5454, lng: -8.4265 }, // Braga
-    image: 'male',
-    seed: 30,
-  },
-  {
-    id: 6,
-    name: 'Dra. Cristiane Martins',
-    role: 'Ortodontista | Invisalign Provider',
-    city: 'Oliveira de Azeméis',
-    address: 'Rua Artur Correia Barbosa, 111, Oliveira de Azeméis',
-    phone: '+351 918 233 310',
-    whatsapp: '351918233310',
-    email: 'clinicadentariavitoria@hotmail.com',
-    coords: { lat: 40.8396, lng: -8.4733 }, // Oliveira de Azeméis
-    image: 'female',
-    seed: 35,
-    customImage: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=faces',
-  },
-]
-
-const INITIAL_POSTS: BlogPost[] = [
-  {
-    id: 1,
-    title: '5 Sinais de que seu filho respira pela boca',
-    excerpt:
-      'Aprenda a identificar os sinais sutis que indicam problemas respiratórios durante o dia e a noite.',
-    content:
-      'Muitos pais acham que o ronco em crianças é "fofo" ou sinal de sono profundo, mas na verdade, pode ser um grito de socorro das vias aéreas. A respiração oral é um problema sério que precisa de atenção.\n\n1. Boca sempre entreaberta\nSe o seu filho assiste TV, brinca ou dorme com os lábios separados, é o sinal mais óbvio.\n\n2. Baba no travesseiro\nAcordar com a fronha molhada é um indicativo clássico.\n\n3. Olheiras profundas\nA má oxigenação e o sono de má qualidade resultam em olheiras vasculares.',
-    category: 'Sintomas',
-    image: 'child sleeping',
-    date: '28 Nov 2024',
-    author: 'Dra. Ana Martins',
-    slug: '5-sinais-respiracao-oral',
-    seoTitle: '5 Sinais de Respiração Oral Infantil - Guia Completo',
-    seoDescription:
-      'Descubra se o seu filho respira pela boca. Veja os 5 principais sinais de alerta e saiba quando procurar ajuda especializada.',
-    seoKeywords: 'respiração oral, sintomas, crianças, sono infantil',
-  },
-  {
-    id: 2,
-    title: 'Como a respiração afeta o desempenho escolar',
-    excerpt:
-      'A falta de oxigenação adequada e o sono ruim podem ser os vilões das notas baixas.',
-    content:
-      'A respiração oral afeta a qualidade do sono, e uma criança cansada não aprende. O cérebro precisa de oxigênio e descanso para consolidar a memória e manter o foco.',
-    category: 'Educação',
-    image: 'child studying',
-    date: '25 Nov 2024',
-    author: 'Dr. Carlos Ferreira',
-    slug: 'respiracao-desempenho-escolar',
-    seoTitle: 'Respiração Oral e Desempenho Escolar: Qual a Relação?',
-    seoDescription:
-      'Entenda como a má respiração pode afetar a concentração e o aprendizado do seu filho na escola.',
-  },
-  {
-    id: 3,
-    title: 'Chupeta e Dedo: O impacto na respiração',
-    excerpt:
-      'Entenda como hábitos orais podem deformar a arcada dentária e forçar a respiração oral.',
-    content:
-      'O uso prolongado de chupeta ou o hábito de chupar o dedo altera o formato do palato (céu da boca), deixando-o ogival (fundo e estreito), o que diminui o espaço para a passagem de ar pelo nariz.',
-    category: 'Prevenção',
-    image: 'baby pacifier',
-    date: '20 Nov 2024',
-    author: 'Dra. Sofia Costa',
-    slug: 'chupeta-dedo-impacto-respiracao',
-  },
-  {
-    id: 4,
-    title: 'Tratamentos modernos para respiração oral',
-    excerpt:
-      'Conheça as novas abordagens que evitam cirurgias em muitos casos.',
-    content:
-      'Hoje em dia, a abordagem multidisciplinar com ortopedia funcional, fonoaudiologia e otorrino permite tratar muitos casos sem intervenção cirúrgica invasiva.',
-    category: 'Tratamento',
-    image: 'doctor child',
-    date: '15 Nov 2024',
-    author: 'Dr. Miguel Santos',
-    slug: 'tratamentos-respiracao-oral',
-  },
-]
+import * as specialistsService from '@/services/specialists'
+import * as blogPostsService from '@/services/blogPosts'
+import * as testimonialsService from '@/services/testimonials'
 
 interface AppContextType {
   specialists: Specialist[]
   blogPosts: BlogPost[]
-  addSpecialist: (specialist: Omit<Specialist, 'id'>) => void
-  updateSpecialist: (id: number, specialist: Partial<Specialist>) => void
-  deleteSpecialist: (id: number) => void
-  addBlogPost: (post: Omit<BlogPost, 'id'>) => void
-  updateBlogPost: (id: number, post: Partial<BlogPost>) => void
-  deleteBlogPost: (id: number) => void
+  testimonials: Testimonial[]
+  isLoading: boolean
+  addSpecialist: (specialist: Omit<Specialist, 'id'>) => Promise<void>
+  updateSpecialist: (id: number, specialist: Partial<Specialist>) => Promise<void>
+  deleteSpecialist: (id: number) => Promise<void>
+  addBlogPost: (post: Omit<BlogPost, 'id'>) => Promise<void>
+  updateBlogPost: (id: number, post: Partial<BlogPost>) => Promise<void>
+  deleteBlogPost: (id: number) => Promise<void>
+  addTestimonial: (testimonial: Omit<Testimonial, 'id'>) => Promise<void>
+  updateTestimonial: (id: number, testimonial: Partial<Testimonial>) => Promise<void>
+  deleteTestimonial: (id: number) => Promise<void>
+  refreshData: () => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -166,82 +35,163 @@ export const AppStoreProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  // Load from localStorage or use initial data
-  const [specialists, setSpecialists] = useState<Specialist[]>(() => {
-    const stored = localStorage.getItem('specialists')
-    if (stored) {
-      try {
-        return JSON.parse(stored)
-      } catch {
-        return INITIAL_SPECIALISTS
-      }
+  const [specialists, setSpecialists] = useState<Specialist[]>([])
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Carregar dados do banco de dados ao inicializar
+  const refreshData = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const [specialistsData, postsData, testimonialsData] = await Promise.all([
+        specialistsService.getAllSpecialists(),
+        blogPostsService.getAllBlogPosts(),
+        testimonialsService.getAllTestimonials(),
+      ])
+      setSpecialists(specialistsData)
+      setBlogPosts(postsData)
+      setTestimonials(testimonialsData)
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+      toast.error('Erro ao carregar dados do banco de dados')
+    } finally {
+      setIsLoading(false)
     }
-    return INITIAL_SPECIALISTS
-  })
-
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
-    const stored = localStorage.getItem('blogPosts')
-    if (stored) {
-      try {
-        return JSON.parse(stored)
-      } catch {
-        return INITIAL_POSTS
-      }
-    }
-    return INITIAL_POSTS
-  })
-
-  // Persist to localStorage whenever data changes
-  React.useEffect(() => {
-    localStorage.setItem('specialists', JSON.stringify(specialists))
-  }, [specialists])
-
-  React.useEffect(() => {
-    localStorage.setItem('blogPosts', JSON.stringify(blogPosts))
-  }, [blogPosts])
-
-  const addSpecialist = useCallback((data: Omit<Specialist, 'id'>) => {
-    const newSpecialist = { ...data, id: Date.now() }
-    setSpecialists((prev) => [...prev, newSpecialist])
-    toast.success('Profissional adicionado com sucesso!')
   }, [])
 
-  const updateSpecialist = useCallback(
-    (id: number, data: Partial<Specialist>) => {
-      setSpecialists((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, ...data } : s)),
-      )
-      toast.success('Profissional atualizado com sucesso!')
+  useEffect(() => {
+    refreshData()
+  }, [refreshData])
+
+  const addSpecialist = useCallback(
+    async (data: Omit<Specialist, 'id'>) => {
+      try {
+        const newSpecialist = await specialistsService.createSpecialist(data)
+        setSpecialists((prev) => [...prev, newSpecialist])
+        toast.success('Profissional adicionado com sucesso!')
+      } catch (error) {
+        console.error('Erro ao adicionar especialista:', error)
+        toast.error('Erro ao adicionar profissional')
+        throw error
+      }
     },
     [],
   )
 
-  const deleteSpecialist = useCallback((id: number) => {
-    setSpecialists((prev) => prev.filter((s) => s.id !== id))
-    toast.success('Profissional removido com sucesso!')
-  }, [])
+  const updateSpecialist = useCallback(
+    async (id: number, data: Partial<Specialist>) => {
+      try {
+        const updatedSpecialist = await specialistsService.updateSpecialist(
+          id,
+          data,
+        )
+        setSpecialists((prev) =>
+          prev.map((s) => (s.id === id ? updatedSpecialist : s)),
+        )
+        toast.success('Profissional atualizado com sucesso!')
+      } catch (error) {
+        console.error('Erro ao atualizar especialista:', error)
+        toast.error('Erro ao atualizar profissional')
+        throw error
+      }
+    },
+    [],
+  )
 
-  const addBlogPost = useCallback((data: Omit<BlogPost, 'id'>) => {
-    const postData = { ...data }
-    if (!postData.slug) {
-      postData.slug = slugify(postData.title)
+  const deleteSpecialist = useCallback(async (id: number) => {
+    try {
+      await specialistsService.deleteSpecialist(id)
+      setSpecialists((prev) => prev.filter((s) => s.id !== id))
+      toast.success('Profissional removido com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar especialista:', error)
+      toast.error('Erro ao remover profissional')
+      throw error
     }
-
-    const newPost = { ...postData, id: Date.now() }
-    setBlogPosts((prev) => [newPost, ...prev]) // Newest first
-    toast.success('Artigo publicado com sucesso!')
   }, [])
 
-  const updateBlogPost = useCallback((id: number, data: Partial<BlogPost>) => {
-    setBlogPosts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, ...data } : p)),
-    )
-    toast.success('Artigo atualizado com sucesso!')
+  const addBlogPost = useCallback(async (data: Omit<BlogPost, 'id'>) => {
+    try {
+      const newPost = await blogPostsService.createBlogPost(data)
+      setBlogPosts((prev) => [newPost, ...prev])
+      toast.success('Artigo publicado com sucesso!')
+    } catch (error) {
+      console.error('Erro ao adicionar post:', error)
+      toast.error('Erro ao publicar artigo')
+      throw error
+    }
   }, [])
 
-  const deleteBlogPost = useCallback((id: number) => {
-    setBlogPosts((prev) => prev.filter((p) => p.id !== id))
-    toast.success('Artigo removido com sucesso!')
+  const updateBlogPost = useCallback(
+    async (id: number, data: Partial<BlogPost>) => {
+      try {
+        const updatedPost = await blogPostsService.updateBlogPost(id, data)
+        setBlogPosts((prev) => prev.map((p) => (p.id === id ? updatedPost : p)))
+        toast.success('Artigo atualizado com sucesso!')
+      } catch (error) {
+        console.error('Erro ao atualizar post:', error)
+        toast.error('Erro ao atualizar artigo')
+        throw error
+      }
+    },
+    [],
+  )
+
+  const deleteBlogPost = useCallback(async (id: number) => {
+    try {
+      await blogPostsService.deleteBlogPost(id)
+      setBlogPosts((prev) => prev.filter((p) => p.id !== id))
+      toast.success('Artigo removido com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar post:', error)
+      toast.error('Erro ao remover artigo')
+      throw error
+    }
+  }, [])
+
+  const addTestimonial = useCallback(async (data: Omit<Testimonial, 'id'>) => {
+    try {
+      const newTestimonial = await testimonialsService.createTestimonial(data)
+      setTestimonials((prev) => [newTestimonial, ...prev])
+      toast.success('Depoimento adicionado com sucesso!')
+    } catch (error) {
+      console.error('Erro ao adicionar depoimento:', error)
+      toast.error('Erro ao adicionar depoimento')
+      throw error
+    }
+  }, [])
+
+  const updateTestimonial = useCallback(
+    async (id: number, data: Partial<Testimonial>) => {
+      try {
+        const updatedTestimonial = await testimonialsService.updateTestimonial(
+          id,
+          data,
+        )
+        setTestimonials((prev) =>
+          prev.map((t) => (t.id === id ? updatedTestimonial : t)),
+        )
+        toast.success('Depoimento atualizado com sucesso!')
+      } catch (error) {
+        console.error('Erro ao atualizar depoimento:', error)
+        toast.error('Erro ao atualizar depoimento')
+        throw error
+      }
+    },
+    [],
+  )
+
+  const deleteTestimonial = useCallback(async (id: number) => {
+    try {
+      await testimonialsService.deleteTestimonial(id)
+      setTestimonials((prev) => prev.filter((t) => t.id !== id))
+      toast.success('Depoimento removido com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar depoimento:', error)
+      toast.error('Erro ao remover depoimento')
+      throw error
+    }
   }, [])
 
   return (
@@ -249,12 +199,18 @@ export const AppStoreProvider = ({
       value={{
         specialists,
         blogPosts,
+        testimonials,
+        isLoading,
         addSpecialist,
         updateSpecialist,
         deleteSpecialist,
         addBlogPost,
         updateBlogPost,
         deleteBlogPost,
+        addTestimonial,
+        updateTestimonial,
+        deleteTestimonial,
+        refreshData,
       }}
     >
       {children}

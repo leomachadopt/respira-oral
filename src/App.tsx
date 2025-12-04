@@ -8,11 +8,11 @@ import AdminLayout from './components/AdminLayout'
 import Index from './pages/Index'
 import QuemSomos from './pages/QuemSomos'
 import Problema from './pages/Problema'
-import Tratamentos from './pages/Tratamentos'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 import Contactos from './pages/Contactos'
 import Avaliacao from './pages/Avaliacao'
+import ResultadoAvaliacao from './pages/ResultadoAvaliacao'
 import Agendamento from './pages/Agendamento'
 import NotFound from './pages/NotFound'
 
@@ -22,6 +22,8 @@ import SpecialistList from './pages/admin/specialists/SpecialistList'
 import SpecialistForm from './pages/admin/specialists/SpecialistForm'
 import PostList from './pages/admin/blog/PostList'
 import PostForm from './pages/admin/blog/PostForm'
+import TestimonialList from './pages/admin/testimonials/TestimonialList'
+import TestimonialForm from './pages/admin/testimonials/TestimonialForm'
 
 const router = createBrowserRouter([
   {
@@ -40,10 +42,6 @@ const router = createBrowserRouter([
         element: <Problema />,
       },
       {
-        path: '/tratamentos',
-        element: <Tratamentos />,
-      },
-      {
         path: '/blog',
         element: <Blog />,
       },
@@ -58,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: '/avaliacao',
         element: <Avaliacao />,
+      },
+      {
+        path: '/resultado-avaliacao',
+        element: <ResultadoAvaliacao />,
       },
       {
         path: '/agendamento',
@@ -96,6 +98,18 @@ const router = createBrowserRouter([
       {
         path: 'blog/:id/edit',
         element: <PostForm />,
+      },
+      {
+        path: 'testimonials',
+        element: <TestimonialList />,
+      },
+      {
+        path: 'testimonials/new',
+        element: <TestimonialForm />,
+      },
+      {
+        path: 'testimonials/:id/edit',
+        element: <TestimonialForm />,
       },
     ],
   },

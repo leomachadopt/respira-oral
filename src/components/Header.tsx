@@ -28,7 +28,6 @@ export function Header() {
     { name: 'Home', path: '/' },
     { name: 'Quem Somos', path: '/quem-somos' },
     { name: 'Problema', path: '/problema' },
-    { name: 'Tratamentos', path: '/tratamentos' },
     { name: 'Blog', path: '/blog' },
     { name: 'Contactos', path: '/contactos' },
   ]
@@ -45,28 +44,30 @@ export function Header() {
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white font-bold text-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center text-white font-bold text-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg hover-glow animate-bounce-slow">
             R
           </div>
-          <span className="font-bold text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:block">
+          <span className="font-bold text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hidden sm:block transition-all duration-300 group-hover:scale-105">
             Respiração Oral
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
+          {navLinks.map((link, idx) => (
             <Link
               key={link.path}
               to={link.path}
               className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
+                'text-sm font-medium transition-all duration-300 hover:text-primary hover:scale-105 relative group',
                 location.pathname === link.path
                   ? 'text-primary font-semibold'
                   : 'text-foreground/80',
               )}
+              style={{ animationDelay: `${idx * 50}ms` }}
             >
               {link.name}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
         </nav>
@@ -75,11 +76,11 @@ export function Header() {
         <div className="hidden lg:block">
           <Button
             asChild
-            className="rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 hover:scale-105 shadow-md"
+            className="rounded-full bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 hover:scale-105 shadow-md hover-lift animate-pulse-slow"
           >
-            <Link to="/avaliacao">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Pergunte à IA
+            <Link to="/avaliacao" className="group">
+              <MessageCircle className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Fale com a Dra. Ro
             </Link>
           </Button>
         </div>
@@ -104,17 +105,18 @@ export function Header() {
                 Navegação principal
               </SheetDescription>
               <nav className="flex flex-col gap-6 mt-8">
-                {navLinks.map((link) => (
+                {navLinks.map((link, idx) => (
                   <Link
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      'text-lg font-medium transition-colors hover:text-primary',
+                      'text-lg font-medium transition-all duration-300 hover:text-primary hover:translate-x-2 hover:scale-105',
                       location.pathname === link.path
                         ? 'text-primary font-semibold'
                         : 'text-foreground/80',
                     )}
+                    style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     {link.name}
                   </Link>
@@ -125,7 +127,7 @@ export function Header() {
                 >
                   <Link to="/avaliacao" onClick={() => setIsOpen(false)}>
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Pergunte à IA
+                    Fale com a Dra. Ro
                   </Link>
                 </Button>
               </nav>

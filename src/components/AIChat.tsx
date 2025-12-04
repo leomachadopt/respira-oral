@@ -1,11 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Send, User, Bot, Loader2 } from 'lucide-react'
+import { Send, Bot, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { EvaluationData } from '@/types'
+import { analyzeEvaluation } from '@/services/aiAnalysis'
+import { findBestSpecialist, getUserLocation } from '@/services/specialistMatching'
+import useAppStore from '@/stores/useAppStore'
 
 type Message = {
   id: string
@@ -16,25 +20,15 @@ type Message = {
   multiSelect?: boolean
 }
 
-type UserData = {
-  age?: string
-  signs?: string[]
-  sleep?: string
-  posture?: string
-  allergy?: string
-  evaluated?: string
-  name?: string
-  email?: string
-  phone?: string
-}
-
 export function AIChat() {
   const navigate = useNavigate()
+  const { specialists } = useAppStore()
   const [messages, setMessages] = useState<Message[]>([])
   const [step, setStep] = useState(0)
-  const [userData, setUserData] = useState<UserData>({})
+  const [userData, setUserData] = useState<EvaluationData>({})
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const addMessage = useCallback((msg: Omit<Message, 'id'>) => {
@@ -44,14 +38,6 @@ export function AIChat() {
     ])
   }, [])
 
-  const finishEvaluation = useCallback(async () => {
-    setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    toast.success('Informações recebidas com sucesso!')
-    navigate('/agendamento')
-  }, [navigate])
-
   const nextStep = useCallback(() => {
     const currentStep = step + 1
     setStep(currentStep)
@@ -60,83 +46,136 @@ export function AIChat() {
       case 1:
         addMessage({
           sender: 'ai',
-          text: 'Para começar, qual a idade do seu filho(a)?',
-          type: 'options',
-          options: ['0-2 anos', '3-5 anos', '6-10 anos', 'Mais de 10 anos'],
+          text: 'Para começarmos, como devemos chamá-lo(a)? Por favor, digite o seu nome:',
+          type: 'text',
         })
         break
       case 2:
         addMessage({
           sender: 'ai',
-          text: 'Quais sinais ou comportamentos relacionados à respiração do seu filho(a) você tem observado?',
+          text: 'Ótimo! Para que possamos enviar o relatório completo da avaliação, qual é o seu número de WhatsApp?',
+          type: 'text',
+        })
+        break
+      case 3:
+        addMessage({
+          sender: 'ai',
+          text: 'Perfeito! Agora vamos falar sobre o seu filho(a). Qual a idade dele(a)?',
+          type: 'options',
+          options: ['0-2 anos', '3-5 anos', '6-10 anos', '11-14 anos', 'Mais de 14 anos'],
+        })
+        break
+      case 4:
+        addMessage({
+          sender: 'ai',
+          text: 'Quais sinais ou comportamentos relacionados à respiração do seu filho(a) tem observado? (Pode selecionar vários)',
           type: 'options',
           options: [
             'Boca aberta constantemente',
             'Ronco ao dormir',
             'Dificuldade para respirar pelo nariz',
             'Lábios ressecados',
+            'Baba no travesseiro',
+            'Olheiras profundas',
+            'Nenhum destes',
           ],
+          multiSelect: true,
         })
-        break
-      case 3:
-        addMessage({
-          sender: 'ai',
-          text: 'Durante o sono, você nota algo como ronco, sono agitado, ou o seu filho(a) dorme com a boca aberta?',
-          type: 'options',
-          options: [
-            'Sim, frequentemente',
-            'Às vezes',
-            'Não notei',
-            'Não sei dizer',
-          ],
-        })
-        break
-      case 4:
-        addMessage({
-          sender: 'ai',
-          text: 'Você já reparou na postura do seu filho(a)? Por exemplo, ele(a) costuma ter a cabeça inclinada para trás ou os ombros curvados?',
-          type: 'options',
-          options: ['Sim', 'Não', 'Talvez'],
-        })
+        setSelectedOptions([])
         break
       case 5:
         addMessage({
           sender: 'ai',
-          text: 'Há histórico de alergias na família ou o seu filho(a) sofre de alguma alergia?',
+          text: 'O seu filho(a) tem dentes tortos, espaçados ou alguma mordida que não encaixa bem?',
           type: 'options',
-          options: ['Sim', 'Não'],
+          options: [
+            'Sim, dentes tortos',
+            'Sim, mordida cruzada',
+            'Sim, dentes espaçados',
+            'Sim, dentes apinhados',
+            'Não notei problemas',
+            'Não sei dizer',
+          ],
         })
         break
       case 6:
         addMessage({
           sender: 'ai',
-          text: 'O seu filho(a) já foi avaliado por um otorrino, pediatra ou fonoaudiólogo em relação à respiração?',
+          text: 'O seu filho(a) ainda usa chupeta, chupa o dedo ou tem algum hábito oral?',
           type: 'options',
-          options: ['Sim', 'Não'],
+          options: [
+            'Sim, usa chupeta',
+            'Sim, chupa o dedo',
+            'Sim, ambos',
+            'Não, mas já usou',
+            'Não, nunca usou',
+          ],
         })
         break
-      case 7: {
-        // Risk Calculation Logic (Mock)
-        const riskLevel = 'moderado' // Mock logic
+      case 7:
         addMessage({
           sender: 'ai',
-          text: `Com base nas suas respostas, os sinais observados sugerem um nível de risco ${riskLevel} para a respiração oral. É importante investigar mais a fundo, pois a respiração pela boca pode ter impactos significativos no desenvolvimento.`,
+          text: 'Já reparou na postura do seu filho(a)? Por exemplo, ele(a) costuma ter a cabeça inclinada para trás ou os ombros curvados?',
+          type: 'options',
+          options: ['Sim, frequentemente', 'Às vezes', 'Não notei', 'Não sei dizer'],
         })
-        setTimeout(() => {
-          addMessage({
-            sender: 'ai',
-            text: 'Para uma avaliação precisa e um plano de tratamento adequado, o próximo passo é uma consulta com os nossos especialistas.',
-          })
-          setTimeout(() => {
-            addMessage({
-              sender: 'ai',
-              text: 'Para que possamos entrar em contato e ajudar a agendar a sua consulta, por favor, digite o seu Nome:',
-            })
-            setStep(8)
-          }, 1000)
-        }, 1500)
         break
-      }
+      case 8:
+        addMessage({
+          sender: 'ai',
+          text: 'O seu filho(a) tem dificuldade em pronunciar certos sons ou fala com a língua entre os dentes?',
+          type: 'options',
+          options: [
+            'Sim, dificuldade de pronúncia',
+            'Sim, fala com língua entre dentes',
+            'Às vezes',
+            'Não',
+            'Não sei dizer',
+          ],
+        })
+        break
+      case 9:
+        addMessage({
+          sender: 'ai',
+          text: 'Como descreveria a qualidade do sono do seu filho(a)?',
+          type: 'options',
+          options: [
+            'Muito ruim - acorda várias vezes',
+            'Ruim - sono agitado',
+            'Regular - às vezes agitado',
+            'Bom - dorme bem',
+            'Não sei avaliar',
+          ],
+        })
+        break
+      case 10:
+        addMessage({
+          sender: 'ai',
+          text: 'O seu filho(a) já fez algum tratamento ortodôntico ou de ortopedia funcional anteriormente?',
+          type: 'options',
+          options: [
+            'Sim, tratamento ortodôntico',
+            'Sim, ortopedia funcional',
+            'Sim, ambos',
+            'Não, nunca',
+            'Não sei',
+          ],
+        })
+        break
+      case 11:
+        addMessage({
+          sender: 'ai',
+          text: 'Para encontrarmos o especialista mais próximo, qual é a sua cidade ou localização? (Pode digitar o nome da cidade)',
+          type: 'text',
+        })
+        break
+      case 12:
+        addMessage({
+          sender: 'ai',
+          text: 'Por fim, qual é o seu melhor email para contato?',
+          type: 'text',
+        })
+        break
       default:
         break
     }
@@ -145,68 +184,155 @@ export function AIChat() {
   const processInput = useCallback(
     async (input: string) => {
       setIsLoading(true)
-      // Simulate AI thinking delay
       await new Promise((resolve) => setTimeout(resolve, 800))
 
       switch (step) {
-        case 1: // Age
+        case 1: // Name
+          setUserData((prev) => ({ ...prev, name: input }))
+          nextStep()
+          break
+        case 2: // Phone/WhatsApp
+          setUserData((prev) => ({ ...prev, phone: input }))
+          nextStep()
+          break
+        case 3: // Age
           setUserData((prev) => ({ ...prev, age: input }))
           nextStep()
           break
-        case 2: // Signs
-          setUserData((prev) => ({ ...prev, signs: [input] })) // Simplified for demo
+        case 4: // Breathing Signs (multi-select)
+          if (selectedOptions.length === 0) {
+            toast.error('Por favor, selecione pelo menos uma opção')
+            setIsLoading(false)
+            return
+          }
+          setUserData((prev) => ({
+            ...prev,
+            breathingSigns: selectedOptions.filter((opt) => opt !== 'Nenhum destes'),
+          }))
+          setSelectedOptions([])
           nextStep()
           break
-        case 3: // Sleep
-          setUserData((prev) => ({ ...prev, sleep: input }))
+        case 5: // Dental Issues
+          setUserData((prev) => ({
+            ...prev,
+            dentalIssues: [input],
+          }))
           nextStep()
           break
-        case 4: // Posture
+        case 6: // Oral Habits
+          setUserData((prev) => ({
+            ...prev,
+            oralHabits: [input],
+          }))
+          nextStep()
+          break
+        case 7: // Posture
           setUserData((prev) => ({ ...prev, posture: input }))
           nextStep()
           break
-        case 5: // Allergy
-          setUserData((prev) => ({ ...prev, allergy: input }))
+        case 8: // Speech Issues
+          setUserData((prev) => ({ ...prev, speechIssues: input }))
           nextStep()
           break
-        case 6: // Evaluated
-          setUserData((prev) => ({ ...prev, evaluated: input }))
+        case 9: // Sleep Quality
+          setUserData((prev) => ({ ...prev, sleepQuality: input }))
           nextStep()
           break
-        case 7: // Risk Assessment (Internal step, no user input needed really, but we transition)
-          // Logic handled in nextStep
+        case 10: // Previous Treatment
+          setUserData((prev) => ({ ...prev, previousTreatment: input }))
+          nextStep()
           break
-        case 8: // Lead Capture - Name
-          setUserData((prev) => ({ ...prev, name: input }))
-          addMessage({
-            sender: 'ai',
-            text: 'Obrigado. Qual é o seu melhor email para contato?',
-          })
-          setStep(9)
+        case 11: // Location
+          // Tenta obter geolocalização primeiro
+          let location = { city: input }
+          try {
+            const geoLocation = await getUserLocation()
+            if (geoLocation) {
+              location = {
+                city: input || geoLocation.city,
+                coords: geoLocation.coords,
+              }
+            }
+          } catch (error) {
+            console.error('Erro ao obter localização:', error)
+          }
+          setUserData((prev) => ({ ...prev, location }))
+          nextStep()
           break
-        case 9: // Lead Capture - Email
+        case 12: // Email & Finish
           setUserData((prev) => ({ ...prev, email: input }))
-          addMessage({
-            sender: 'ai',
-            text: 'E por fim, um número de telefone ou WhatsApp?',
-          })
-          setStep(10)
-          break
-        case 10: // Lead Capture - Phone & Finish
-          setUserData((prev) => ({ ...prev, phone: input }))
-          finishEvaluation()
+          // Processa avaliação completa
+          await processEvaluation({ ...userData, email: input })
           break
         default:
           break
       }
       setIsLoading(false)
     },
-    [step, nextStep, addMessage, finishEvaluation],
+    [step, nextStep, userData, selectedOptions],
   )
 
+  const processEvaluation = async (finalData: EvaluationData) => {
+    setIsLoading(true)
+    addMessage({
+      sender: 'ai',
+      text: 'Perfeito! Estou analisando todas as informações...',
+    })
+
+    try {
+      // Analisa com IA
+      const result = await analyzeEvaluation(finalData)
+
+      // Encontra especialista
+      const recommendedSpecialist = findBestSpecialist(
+        finalData,
+        result,
+        specialists,
+      )
+
+      // Atualiza resultado com especialista
+      result.recommendedSpecialist = recommendedSpecialist
+
+      // Salva resultado no sessionStorage para a página de resultado
+      sessionStorage.setItem('evaluationResult', JSON.stringify(result))
+      sessionStorage.setItem('evaluationData', JSON.stringify(finalData))
+
+      // Mensagem final
+      addMessage({
+        sender: 'ai',
+        text: 'Análise concluída! Vou mostrar os resultados e o especialista recomendado.',
+      })
+
+      setTimeout(() => {
+        navigate('/resultado-avaliacao', { state: { result, data: finalData } })
+      }, 1500)
+    } catch (error) {
+      console.error('Erro ao processar avaliação:', error)
+      toast.error('Erro ao processar avaliação. Tente novamente.')
+      setIsLoading(false)
+    }
+  }
+
   const handleOptionClick = (option: string) => {
-    addMessage({ sender: 'user', text: option })
-    processInput(option)
+    const currentMessage = messages[messages.length - 1]
+
+    if (currentMessage?.multiSelect) {
+      // Multi-select: toggle option
+      setSelectedOptions((prev) => {
+        if (prev.includes(option)) {
+          // Remove opção
+          return prev.filter((opt) => opt !== option)
+        } else {
+          // Adiciona opção
+          return [...prev, option]
+        }
+      })
+      // Não avança automaticamente no multi-select
+    } else {
+      // Single select: avança
+      addMessage({ sender: 'user', text: option })
+      processInput(option)
+    }
   }
 
   const handleSend = () => {
@@ -216,12 +342,29 @@ export function AIChat() {
     setInputValue('')
   }
 
+  const handleFinishMultiSelect = () => {
+    if (selectedOptions.length === 0) {
+      toast.error('Por favor, selecione pelo menos uma opção')
+      return
+    }
+    
+    // Adiciona mensagem visual com as opções selecionadas
+    const selectedText = selectedOptions.join(', ')
+    addMessage({ sender: 'user', text: selectedText })
+    
+    // Processa com string vazia, o case 2 vai usar selectedOptions do estado
+    setIsLoading(true)
+    setTimeout(() => {
+      processInput('')
+    }, 300)
+  }
+
   // Initial greeting
   useEffect(() => {
     if (step === 0) {
       addMessage({
         sender: 'ai',
-        text: 'Olá! Sou o seu assistente inteligente e estou aqui para ajudar a compreender a respiração do seu filho. Por favor, responda às minhas perguntas para uma avaliação inicial. Lembre-se, não faço diagnósticos, apenas ofereço orientação.',
+        text: 'Olá! Sou a Dra. Ro e estou aqui para ajudar a compreender a respiração do seu filho. Vou fazer algumas perguntas para uma avaliação inicial focada em ortopedia funcional dos maxilares. Lembre-se, não faço diagnósticos, apenas ofereço orientação.',
       })
       setTimeout(() => nextStep(), 1000)
     }
@@ -237,15 +380,18 @@ export function AIChat() {
         scrollContainer.scrollTop = scrollContainer.scrollHeight
       }
     }
-  }, [messages, isLoading])
+  }, [messages, isLoading, selectedOptions])
+
+  const currentMessage = messages[messages.length - 1]
+  const isMultiSelect = currentMessage?.multiSelect && step === 2
 
   return (
     <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white rounded-xl shadow-xl border border-border overflow-hidden">
       <div className="bg-primary p-4 text-white flex items-center gap-3">
         <Bot className="w-6 h-6" />
         <div>
-          <h3 className="font-bold">Assistente Virtual</h3>
-          <p className="text-xs opacity-90">Triagem Inicial</p>
+          <h3 className="font-bold">Dra. Ro</h3>
+          <p className="text-xs opacity-90">Assistente de Triagem</p>
         </div>
       </div>
 
@@ -296,20 +442,56 @@ export function AIChat() {
           {/* Options Display */}
           {!isLoading &&
             messages.length > 0 &&
-            messages[messages.length - 1].sender === 'ai' &&
-            messages[messages.length - 1].type === 'options' && (
-              <div className="flex flex-wrap gap-2 mt-2 animate-fade-in">
-                {messages[messages.length - 1].options?.map((option) => (
-                  <Button
-                    key={option}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOptionClick(option)}
-                    className="rounded-full border-primary text-primary hover:bg-primary hover:text-white"
-                  >
-                    {option}
-                  </Button>
-                ))}
+            currentMessage?.sender === 'ai' &&
+            currentMessage?.type === 'options' && (
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2 mt-2 animate-fade-in">
+                  {currentMessage.options?.map((option) => {
+                    const isSelected = selectedOptions.includes(option)
+                    return (
+                      <Button
+                        key={option}
+                        variant={isSelected ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleOptionClick(option)}
+                        className={cn(
+                          'rounded-full transition-all',
+                          isSelected
+                            ? 'bg-primary text-white shadow-md scale-105'
+                            : 'border-primary text-primary hover:bg-primary hover:text-white',
+                        )}
+                      >
+                        {option}
+                        {isSelected && ' ✓'}
+                      </Button>
+                    )
+                  })}
+                </div>
+                {isMultiSelect && (
+                  <div className="space-y-2">
+                    {selectedOptions.length > 0 && (
+                      <div className="text-sm text-muted-foreground px-2">
+                        {selectedOptions.length} opção{selectedOptions.length > 1 ? 'ões' : ''} selecionada{selectedOptions.length > 1 ? 's' : ''}
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleFinishMultiSelect}
+                      disabled={selectedOptions.length === 0 || isLoading}
+                      className="w-full rounded-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processando...
+                        </>
+                      ) : selectedOptions.length > 0 ? (
+                        `Continuar (${selectedOptions.length} selecionado${selectedOptions.length > 1 ? 's' : ''})`
+                      ) : (
+                        'Selecione pelo menos uma opção'
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
         </div>
@@ -326,7 +508,8 @@ export function AIChat() {
             disabled={
               isLoading ||
               (messages.length > 0 &&
-                messages[messages.length - 1].type === 'options')
+                currentMessage?.type === 'options' &&
+                !isMultiSelect)
             }
           />
           <Button
