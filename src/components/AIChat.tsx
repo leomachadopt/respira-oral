@@ -6,11 +6,21 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { EvaluationData } from '@/types'
+import { EvaluationData, PortugalRegion, Specialist } from '@/types'
 import { analyzeEvaluation } from '@/services/aiAnalysis'
 import { findBestSpecialist, getUserLocation } from '@/services/specialistMatching'
 import { createEvaluation, updateEvaluation } from '@/services/evaluations'
 import useAppStore from '@/stores/useAppStore'
+
+const PORTUGAL_REGIONS: PortugalRegion[] = [
+  'Norte',
+  'Centro',
+  'Lisboa e Vale do Tejo',
+  'Alentejo',
+  'Algarve',
+  'Açores',
+  'Madeira',
+]
 
 type Message = {
   id: string
@@ -31,6 +41,8 @@ export function AIChat() {
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const [regionSpecialists, setRegionSpecialists] = useState<Specialist[]>([])
+  const [selectedSpecialistId, setSelectedSpecialistId] = useState<number | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const addMessage = useCallback((msg: Omit<Message, 'id'>) => {
@@ -167,11 +179,34 @@ export function AIChat() {
       case 11:
         addMessage({
           sender: 'ai',
-          text: 'Para encontrarmos o especialista mais próximo, qual é a sua cidade ou localização? (Pode digitar o nome da cidade)',
-          type: 'text',
+          text: 'Para encontrarmos o especialista mais próximo, em qual região de Portugal você se encontra?',
+          type: 'options',
+          options: PORTUGAL_REGIONS,
         })
         break
       case 12:
+        // Mostra profissionais da região escolhida
+        if (regionSpecialists.length > 0) {
+          const specialistOptions = regionSpecialists.map(
+            (s) => `${s.name} - ${s.role} (${s.city})`
+          )
+          addMessage({
+            sender: 'ai',
+            text: `Encontrei ${regionSpecialists.length} profissional(is) na região escolhida. Selecione o de sua preferência:`,
+            type: 'options',
+            options: specialistOptions,
+          })
+        } else {
+          addMessage({
+            sender: 'ai',
+            text: 'Infelizmente não encontramos profissionais cadastrados nesta região ainda. Vamos continuar com a avaliação e entraremos em contato.',
+            type: 'text',
+          })
+          // Pula para o próximo passo automaticamente
+          setTimeout(() => setStep(13), 1500)
+        }
+        break
+      case 13:
         addMessage({
           sender: 'ai',
           text: 'Por fim, qual é o seu melhor email para contato?',
@@ -181,7 +216,7 @@ export function AIChat() {
       default:
         break
     }
-  }, [step, addMessage])
+  }, [step, addMessage, regionSpecialists])
 
   // Função auxiliar para salvar/atualizar avaliação no banco
   const saveEvaluation = useCallback(
@@ -284,26 +319,51 @@ export function AIChat() {
           await saveEvaluation(updatedWithTreatment)
           nextStep()
           break
-        case 11: // Location
-          // Tenta obter geolocalização primeiro
-          let location = { city: input }
-          try {
-            const geoLocation = await getUserLocation()
-            if (geoLocation) {
-              location = {
-                city: input || geoLocation.city,
-                coords: geoLocation.coords,
-              }
-            }
-          } catch (error) {
-            console.error('Erro ao obter localização:', error)
+        case 11: // Region
+          const selectedRegion = input as PortugalRegion
+          const updatedWithRegion = {
+            ...userData,
+            region: selectedRegion,
+            location: {
+              ...userData.location,
+              region: selectedRegion,
+            },
           }
-          const updatedWithLocation = { ...userData, location }
-          setUserData(updatedWithLocation)
-          await saveEvaluation(updatedWithLocation)
+          setUserData(updatedWithRegion)
+          await saveEvaluation(updatedWithRegion)
+
+          // Busca profissionais da região
+          const specialistsInRegion = specialists.filter(
+            (s) => s.region === selectedRegion
+          )
+          setRegionSpecialists(specialistsInRegion)
+
           nextStep()
           break
-        case 12: // Email & Finish
+        case 12: // Specialist Selection
+          if (regionSpecialists.length > 0) {
+            // Extrai o índice do profissional selecionado
+            const selectedIndex = regionSpecialists.findIndex((s) =>
+              input.includes(s.name)
+            )
+            if (selectedIndex !== -1) {
+              const selectedSpecialist = regionSpecialists[selectedIndex]
+              setSelectedSpecialistId(selectedSpecialist.id)
+
+              const updatedWithSpecialist = {
+                ...userData,
+                location: {
+                  ...userData.location,
+                  city: selectedSpecialist.city,
+                },
+              }
+              setUserData(updatedWithSpecialist)
+              await saveEvaluation(updatedWithSpecialist)
+            }
+          }
+          nextStep()
+          break
+        case 13: // Email & Finish
           const finalData = { ...userData, email: input }
           setUserData(finalData)
           await saveEvaluation(finalData)
@@ -315,7 +375,7 @@ export function AIChat() {
       }
       setIsLoading(false)
     },
-    [step, nextStep, userData, selectedOptions, saveEvaluation],
+    [step, nextStep, userData, selectedOptions, saveEvaluation, specialists, regionSpecialists],
   )
 
   const processEvaluation = async (finalData: EvaluationData) => {
@@ -329,12 +389,17 @@ export function AIChat() {
       // Analisa com IA
       const result = await analyzeEvaluation(finalData)
 
-      // Encontra especialista
-      const recommendedSpecialist = findBestSpecialist(
-        finalData,
-        result,
-        specialists,
-      )
+      // Encontra especialista (usa o selecionado ou busca o melhor)
+      let recommendedSpecialist = null
+      if (selectedSpecialistId) {
+        recommendedSpecialist = specialists.find((s) => s.id === selectedSpecialistId) || null
+      } else {
+        recommendedSpecialist = findBestSpecialist(
+          finalData,
+          result,
+          specialists,
+        )
+      }
 
       // Atualiza resultado com especialista
       result.recommendedSpecialist = recommendedSpecialist
