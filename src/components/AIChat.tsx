@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { EvaluationData } from '@/types'
 import { analyzeEvaluation } from '@/services/aiAnalysis'
 import { findBestSpecialist, getUserLocation } from '@/services/specialistMatching'
+import { createEvaluation, updateEvaluation } from '@/services/evaluations'
 import useAppStore from '@/stores/useAppStore'
 
 type Message = {
@@ -26,6 +27,7 @@ export function AIChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [step, setStep] = useState(0)
   const [userData, setUserData] = useState<EvaluationData>({})
+  const [evaluationId, setEvaluationId] = useState<number | null>(null)
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
@@ -181,6 +183,26 @@ export function AIChat() {
     }
   }, [step, addMessage])
 
+  // Função auxiliar para salvar/atualizar avaliação no banco
+  const saveEvaluation = useCallback(
+    async (data: EvaluationData) => {
+      try {
+        if (evaluationId) {
+          // Atualiza avaliação existente
+          await updateEvaluation(evaluationId, data)
+        } else if (data.name && data.phone) {
+          // Cria nova avaliação (apenas após ter nome e whatsapp)
+          const newEvaluation = await createEvaluation(data)
+          setEvaluationId(newEvaluation.id)
+        }
+      } catch (error) {
+        console.error('Erro ao salvar avaliação:', error)
+        // Não bloqueia o fluxo se der erro ao salvar
+      }
+    },
+    [evaluationId],
+  )
+
   const processInput = useCallback(
     async (input: string) => {
       setIsLoading(true)
@@ -188,15 +210,21 @@ export function AIChat() {
 
       switch (step) {
         case 1: // Name
-          setUserData((prev) => ({ ...prev, name: input }))
+          const updatedWithName = { ...userData, name: input }
+          setUserData(updatedWithName)
           nextStep()
           break
         case 2: // Phone/WhatsApp
-          setUserData((prev) => ({ ...prev, phone: input }))
+          const updatedWithPhone = { ...userData, phone: input }
+          setUserData(updatedWithPhone)
+          // Salva no banco após ter nome e whatsapp
+          await saveEvaluation(updatedWithPhone)
           nextStep()
           break
         case 3: // Age
-          setUserData((prev) => ({ ...prev, age: input }))
+          const updatedWithAge = { ...userData, age: input }
+          setUserData(updatedWithAge)
+          await saveEvaluation(updatedWithAge)
           nextStep()
           break
         case 4: // Breathing Signs (multi-select)
@@ -205,41 +233,55 @@ export function AIChat() {
             setIsLoading(false)
             return
           }
-          setUserData((prev) => ({
-            ...prev,
+          const updatedWithBreathing = {
+            ...userData,
             breathingSigns: selectedOptions.filter((opt) => opt !== 'Nenhum destes'),
-          }))
+          }
+          setUserData(updatedWithBreathing)
+          await saveEvaluation(updatedWithBreathing)
           setSelectedOptions([])
           nextStep()
           break
         case 5: // Dental Issues
-          setUserData((prev) => ({
-            ...prev,
+          const updatedWithDental = {
+            ...userData,
             dentalIssues: [input],
-          }))
+          }
+          setUserData(updatedWithDental)
+          await saveEvaluation(updatedWithDental)
           nextStep()
           break
         case 6: // Oral Habits
-          setUserData((prev) => ({
-            ...prev,
+          const updatedWithHabits = {
+            ...userData,
             oralHabits: [input],
-          }))
+          }
+          setUserData(updatedWithHabits)
+          await saveEvaluation(updatedWithHabits)
           nextStep()
           break
         case 7: // Posture
-          setUserData((prev) => ({ ...prev, posture: input }))
+          const updatedWithPosture = { ...userData, posture: input }
+          setUserData(updatedWithPosture)
+          await saveEvaluation(updatedWithPosture)
           nextStep()
           break
         case 8: // Speech Issues
-          setUserData((prev) => ({ ...prev, speechIssues: input }))
+          const updatedWithSpeech = { ...userData, speechIssues: input }
+          setUserData(updatedWithSpeech)
+          await saveEvaluation(updatedWithSpeech)
           nextStep()
           break
         case 9: // Sleep Quality
-          setUserData((prev) => ({ ...prev, sleepQuality: input }))
+          const updatedWithSleep = { ...userData, sleepQuality: input }
+          setUserData(updatedWithSleep)
+          await saveEvaluation(updatedWithSleep)
           nextStep()
           break
         case 10: // Previous Treatment
-          setUserData((prev) => ({ ...prev, previousTreatment: input }))
+          const updatedWithTreatment = { ...userData, previousTreatment: input }
+          setUserData(updatedWithTreatment)
+          await saveEvaluation(updatedWithTreatment)
           nextStep()
           break
         case 11: // Location
@@ -256,20 +298,24 @@ export function AIChat() {
           } catch (error) {
             console.error('Erro ao obter localização:', error)
           }
-          setUserData((prev) => ({ ...prev, location }))
+          const updatedWithLocation = { ...userData, location }
+          setUserData(updatedWithLocation)
+          await saveEvaluation(updatedWithLocation)
           nextStep()
           break
         case 12: // Email & Finish
-          setUserData((prev) => ({ ...prev, email: input }))
+          const finalData = { ...userData, email: input }
+          setUserData(finalData)
+          await saveEvaluation(finalData)
           // Processa avaliação completa
-          await processEvaluation({ ...userData, email: input })
+          await processEvaluation(finalData)
           break
         default:
           break
       }
       setIsLoading(false)
     },
-    [step, nextStep, userData, selectedOptions],
+    [step, nextStep, userData, selectedOptions, saveEvaluation],
   )
 
   const processEvaluation = async (finalData: EvaluationData) => {
@@ -292,6 +338,25 @@ export function AIChat() {
 
       // Atualiza resultado com especialista
       result.recommendedSpecialist = recommendedSpecialist
+
+      // Determina nível de risco baseado no score
+      let riskLevel = 'baixo'
+      if (result.score >= 70) {
+        riskLevel = 'alto'
+      } else if (result.score >= 40) {
+        riskLevel = 'moderado'
+      }
+
+      // Atualiza avaliação no banco com os resultados finais
+      if (evaluationId) {
+        await updateEvaluation(
+          evaluationId,
+          finalData,
+          result,
+          riskLevel,
+          recommendedSpecialist?.id,
+        )
+      }
 
       // Salva resultado no sessionStorage para a página de resultado
       sessionStorage.setItem('evaluationResult', JSON.stringify(result))
@@ -383,7 +448,7 @@ export function AIChat() {
   }, [messages, isLoading, selectedOptions])
 
   const currentMessage = messages[messages.length - 1]
-  const isMultiSelect = currentMessage?.multiSelect && step === 2
+  const isMultiSelect = currentMessage?.multiSelect === true
 
   return (
     <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-white rounded-xl shadow-xl border border-border overflow-hidden">

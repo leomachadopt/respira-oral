@@ -10,11 +10,14 @@ import { toast } from 'sonner'
 import * as specialistsService from '@/services/specialists'
 import * as blogPostsService from '@/services/blogPosts'
 import * as testimonialsService from '@/services/testimonials'
+import * as evaluationsService from '@/services/evaluations'
+import type { EvaluationRecord } from '@/services/evaluations'
 
 interface AppContextType {
   specialists: Specialist[]
   blogPosts: BlogPost[]
   testimonials: Testimonial[]
+  evaluations: EvaluationRecord[]
   isLoading: boolean
   addSpecialist: (specialist: Omit<Specialist, 'id'>) => Promise<void>
   updateSpecialist: (id: number, specialist: Partial<Specialist>) => Promise<void>
@@ -25,6 +28,7 @@ interface AppContextType {
   addTestimonial: (testimonial: Omit<Testimonial, 'id'>) => Promise<void>
   updateTestimonial: (id: number, testimonial: Partial<Testimonial>) => Promise<void>
   deleteTestimonial: (id: number) => Promise<void>
+  deleteEvaluation: (id: number) => Promise<void>
   refreshData: () => Promise<void>
 }
 
@@ -38,20 +42,23 @@ export const AppStoreProvider = ({
   const [specialists, setSpecialists] = useState<Specialist[]>([])
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [evaluations, setEvaluations] = useState<EvaluationRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   // Carregar dados do banco de dados ao inicializar
   const refreshData = useCallback(async () => {
     try {
       setIsLoading(true)
-      const [specialistsData, postsData, testimonialsData] = await Promise.all([
+      const [specialistsData, postsData, testimonialsData, evaluationsData] = await Promise.all([
         specialistsService.getAllSpecialists(),
         blogPostsService.getAllBlogPosts(),
         testimonialsService.getAllTestimonials(),
+        evaluationsService.getAllEvaluations(),
       ])
       setSpecialists(specialistsData)
       setBlogPosts(postsData)
       setTestimonials(testimonialsData)
+      setEvaluations(evaluationsData)
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
       toast.error('Erro ao carregar dados do banco de dados')
@@ -194,12 +201,25 @@ export const AppStoreProvider = ({
     }
   }, [])
 
+  const deleteEvaluation = useCallback(async (id: number) => {
+    try {
+      await evaluationsService.deleteEvaluation(id)
+      setEvaluations((prev) => prev.filter((e) => e.id !== id))
+      toast.success('Avaliação removida com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar avaliação:', error)
+      toast.error('Erro ao remover avaliação')
+      throw error
+    }
+  }, [])
+
   return (
     <AppContext.Provider
       value={{
         specialists,
         blogPosts,
         testimonials,
+        evaluations,
         isLoading,
         addSpecialist,
         updateSpecialist,
@@ -210,6 +230,7 @@ export const AppStoreProvider = ({
         addTestimonial,
         updateTestimonial,
         deleteTestimonial,
+        deleteEvaluation,
         refreshData,
       }}
     >
