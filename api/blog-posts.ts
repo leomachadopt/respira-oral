@@ -1,5 +1,5 @@
 import { db } from './db/client'
-import { blogPosts } from '../../src/db/schema'
+import { blogPosts } from './db/schema'
 import { eq } from 'drizzle-orm'
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 // Função slugify local para evitar dependências do frontend
@@ -208,9 +208,13 @@ export default async function handler(
     }
 
     return res.status(405).json({ error: 'Método não permitido' })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro na API de blog posts:', error)
-    return res.status(500).json({ error: 'Erro interno do servidor' })
+    const errorMessage = error?.message || 'Erro interno do servidor'
+    return res.status(500).json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+    })
   }
 }
 

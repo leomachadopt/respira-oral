@@ -16,8 +16,14 @@ async function apiRequest<T>(
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Erro desconhecido' }))
-    throw new Error(error.error || `HTTP error! status: ${response.status}`)
+    let errorData: any
+    try {
+      errorData = await response.json()
+    } catch {
+      errorData = { error: `HTTP error! status: ${response.status}` }
+    }
+    const errorMessage = errorData?.error || `HTTP error! status: ${response.status}`
+    throw new Error(errorMessage)
   }
 
   return response.json()
