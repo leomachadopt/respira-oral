@@ -29,7 +29,8 @@ export default async function handler(
     const sql = neon(cleanUrl)
     
     // Verificar se as tabelas existem
-    const tablesQuery = `
+    // Usar template literal para queries (nova API do Neon serverless)
+    const tablesResult = await sql`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
@@ -37,15 +38,12 @@ export default async function handler(
       ORDER BY table_name;
     `
     
-    const tables = await sql(tablesQuery)
-    
     // Verificar se a tabela specialists existe e tem dados
     let specialistsCount = 0
     let specialistsError = null
     
     try {
-      const countQuery = 'SELECT COUNT(*) as count FROM specialists'
-      const countResult = await sql(countQuery)
+      const countResult = await sql`SELECT COUNT(*) as count FROM specialists`
       specialistsCount = Number(countResult[0]?.count || 0)
     } catch (err: any) {
       specialistsError = err?.message || 'Erro desconhecido'
@@ -53,7 +51,7 @@ export default async function handler(
     
     return res.status(200).json({
       success: true,
-      tables: tables.map((t: any) => t.table_name),
+      tables: tablesResult.map((t: any) => t.table_name) || [],
       specialists: {
         exists: !specialistsError,
         count: specialistsCount,
