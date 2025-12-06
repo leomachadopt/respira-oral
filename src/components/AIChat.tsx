@@ -406,59 +406,73 @@ export function AIChat() {
     })
 
     try {
-      // Analisa com IA
-      const result = await analyzeEvaluation(finalData)
+      // Gerar relatório com OpenAI
+      const API_URL = import.meta.env.VITE_API_URL || '/api'
+      const response = await fetch(`${API_URL}/generate-report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
 
-      // Encontra especialista (usa o selecionado ou busca o melhor)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro ao gerar relatório')
+      }
+
+      const { report } = await response.json()
+
+      // Encontra especialista (usa o selecionado ou filtra por região)
       let recommendedSpecialist = null
       if (selectedSpecialistId) {
         recommendedSpecialist = specialists.find((s) => s.id === selectedSpecialistId) || null
-      } else {
-        recommendedSpecialist = findBestSpecialist(
-          finalData,
-          result,
-          specialists,
-        )
+      } else if (finalData.region) {
+        // Busca primeiro especialista da região
+        const regionSpecialists = specialists.filter((s) => s.region === finalData.region)
+        recommendedSpecialist = regionSpecialists[0] || null
       }
 
-      // Atualiza resultado com especialista
-      result.recommendedSpecialist = recommendedSpecialist
-
-      // Determina nível de risco baseado no score
-      let riskLevel = 'baixo'
-      if (result.score >= 70) {
-        riskLevel = 'alto'
-      } else if (result.score >= 40) {
-        riskLevel = 'moderado'
-      }
-
-      // Atualiza avaliação no banco com os resultados finais
-      if (evaluationId) {
-        await updateEvaluation(
-          evaluationId,
-          finalData,
-          result,
-          riskLevel,
-          recommendedSpecialist?.id,
-        )
-      }
-
-      // Salva resultado no sessionStorage para a página de resultado
-      sessionStorage.setItem('evaluationResult', JSON.stringify(result))
+      // Salva resultado no sessionStorage para exibir
+      sessionStorage.setItem('aiReport', report)
       sessionStorage.setItem('evaluationData', JSON.stringify(finalData))
+      if (recommendedSpecialist) {
+        sessionStorage.setItem('recommendedSpecialist', JSON.stringify(recommendedSpecialist))
+      }
+
+      // Mostrar o relatório no próprio chat
+      setTimeout(() => {
+        addMessage({
+          sender: 'ai',
+          text: report,
+        })
+      }, 1000)
+
+      // Mensagem com especialista se houver
+      if (recommendedSpecialist) {
+        setTimeout(() => {
+          addMessage({
+            sender: 'ai',
+            text: `Recomendamos agendar uma consulta com ${recommendedSpecialist.name} - ${recommendedSpecialist.role}, que atende na região ${recommendedSpecialist.region}. Entre em contacto através do WhatsApp: ${recommendedSpecialist.whatsapp}`,
+          })
+        }, 3000)
+      }
 
       // Mensagem final
+      setTimeout(() => {
+        addMessage({
+          sender: 'ai',
+          text: 'O relatório detalhado será enviado para o seu WhatsApp em breve. Caso tenha alguma dúvida, não hesite em entrar em contacto!',
+        })
+        setIsLoading(false)
+      }, 5000)
+
+    } catch (error: any) {
+      console.error('Erro ao processar avaliação:', error)
       addMessage({
         sender: 'ai',
-        text: 'Análise concluída! Vou mostrar os resultados e o especialista recomendado.',
+        text: `Desculpe, ocorreu um erro ao gerar o relatório: ${error.message}. Por favor, tente novamente ou entre em contacto connosco.`,
       })
-
-      setTimeout(() => {
-        navigate('/resultado-avaliacao', { state: { result, data: finalData } })
-      }, 1500)
-    } catch (error) {
-      console.error('Erro ao processar avaliação:', error)
-      toast.error('Erro ao processar avaliação. Tente novamente.')
       setIsLoading(false)
     }
   }

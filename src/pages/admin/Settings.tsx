@@ -27,19 +27,45 @@ Analise as seguintes respostas da avaliação e gere um relatório detalhado que
 **INSTRUÇÕES:**
 1. Identifique os principais sinais de respiração oral presentes
 2. Explique como esses sinais podem estar relacionados
-3. Indique o nível de preocupação (baixo, moderado ou alto)
-4. Sugira próximos passos e a importância de uma avaliação presencial
-5. Seja empático, claro e objetivo
-6. Use linguagem acessível para pais/responsáveis
+3. Avalie a necessidade de ajuste oclusal (correção da mordida) baseado nos sinais dentários e de respiração
+4. Indique o nível de preocupação (baixo, moderado ou alto)
+5. Reforce a importância de uma avaliação presencial com um dos nossos especialistas na região {region}
+6. Seja empático, claro e objetivo
+7. Use linguagem acessível para pais/responsáveis
+8. IMPORTANTE: Responda SEMPRE em português de Portugal
 
 **FORMATO DO RELATÓRIO:**
 Estruture o relatório em seções claras:
-- Resumo dos sinais identificados
-- Possíveis implicações
-- Nível de preocupação
-- Recomendações
 
-Seja profissional mas acolhedor. Não faça diagnósticos, apenas identifique padrões e oriente sobre a importância da avaliação presencial.`
+1. **Resumo dos Sinais Identificados**
+   - Liste os principais sinais observados
+   - Destaque padrões preocupantes
+
+2. **Possíveis Implicações**
+   - Explique como os sinais se relacionam
+   - Mencione possíveis impactos no desenvolvimento
+
+3. **Necessidade de Ajuste Oclusal**
+   - Avalie se há indicação de correção da mordida
+   - Explique a relação entre oclusão e respiração oral
+
+4. **Nível de Preocupação**
+   - Classifique como: Baixo, Moderado ou Alto
+   - Justifique a classificação
+
+5. **Recomendações**
+   - Próximos passos sugeridos
+   - Reforce a importância de agendar consulta presencial
+   - Mencione que temos especialistas disponíveis na região {region}
+   - Oriente sobre a urgência baseada no nível de preocupação
+
+**OBSERVAÇÕES IMPORTANTES:**
+- Seja profissional mas acolhedor
+- Não faça diagnósticos definitivos
+- Identifique padrões e oriente sobre a necessidade de avaliação presencial
+- Enfatize que apenas uma avaliação presencial pode confirmar as suspeitas
+- Use termos em português de Portugal (ex: "consulta" em vez de "atendimento", "especialista" em vez de "profissional")
+- Sempre mencione a disponibilidade de especialistas na região do paciente`
 
 export default function Settings() {
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT)
