@@ -197,33 +197,20 @@ export function AIChat() {
         })
         break
       case 12:
-        // Mostra profissionais da região escolhida
-        if (regionSpecialists.length > 0) {
-          const specialistOptions = regionSpecialists.map(
-            (s) => `${s.name} - ${s.role} (${s.city})`
-          )
-          addMessage({
-            sender: 'ai',
-            text: `Encontrei ${regionSpecialists.length} profissional(is) na região escolhida. Selecione o de sua preferência:`,
-            type: 'options',
-            options: specialistOptions,
-          })
-        } else {
-          addMessage({
-            sender: 'ai',
-            text: 'Infelizmente não encontramos profissionais cadastrados nesta região ainda. Vamos continuar com a avaliação e entraremos em contacto.',
-            type: 'text',
-          })
-          // Pula para o próximo passo automaticamente
-          setTimeout(() => setStep(13), 1500)
-        }
+        // A mensagem de seleção de profissionais já foi mostrada no case 11 do processInput
+        // Este case fica vazio pois só processamos a seleção do usuário no processInput
         break
       case 13:
+        // Não pergunta mais o email, vai direto para análise
         addMessage({
           sender: 'ai',
-          text: 'Por fim, qual é o seu melhor email para contacto?',
+          text: 'Perfeito! Estou a analisar todas as suas respostas para identificar os sinais que o seu filho(a) apresenta e gerar um relatório detalhado...',
           type: 'text',
         })
+        // Processa avaliação automaticamente após 2 segundos
+        setTimeout(async () => {
+          await processEvaluation(userData)
+        }, 2000)
         break
       default:
         break
@@ -356,7 +343,26 @@ export function AIChat() {
           console.log('Profissionais:', specialistsInRegion.map(s => ({ nome: s.name, região: s.region })))
           setRegionSpecialists(specialistsInRegion)
 
-          nextStep()
+          // Mostra mensagem baseado nos profissionais encontrados AGORA
+          if (specialistsInRegion.length > 0) {
+            const specialistOptions = specialistsInRegion.map(
+              (s) => `${s.name} - ${s.role} (${s.city})`
+            )
+            addMessage({
+              sender: 'ai',
+              text: `Encontrei ${specialistsInRegion.length} profissional(is) na região ${selectedRegion}. Selecione o de sua preferência:`,
+              type: 'options',
+              options: specialistOptions,
+            })
+            setStep(12) // Vai para step 12 para processar a seleção
+          } else {
+            addMessage({
+              sender: 'ai',
+              text: 'Infelizmente não encontramos profissionais cadastrados nesta região ainda. Vamos continuar com a avaliação e entraremos em contacto.',
+              type: 'text',
+            })
+            setTimeout(() => setStep(13), 1500) // Pula direto para email
+          }
           break
         case 12: // Specialist Selection
           if (regionSpecialists.length > 0) {
@@ -381,12 +387,8 @@ export function AIChat() {
           }
           nextStep()
           break
-        case 13: // Email & Finish
-          const finalData = { ...userData, email: input }
-          setUserData(finalData)
-          await saveEvaluation(finalData)
-          // Processa avaliação completa
-          await processEvaluation(finalData)
+        case 13: // Análise final - não processa input, apenas aguarda o processEvaluation automático
+          // O processEvaluation é chamado automaticamente no nextStep do case 13
           break
         default:
           break

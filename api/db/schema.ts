@@ -74,5 +74,14 @@ export const testimonials = pgTable('testimonials', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// Tabela de Configurações do Sistema
+export const settings = pgTable('settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(), // Ex: 'ai_report_prompt', 'openai_api_key'
+  value: text('value').notNull(), // Valor da configuração
+  description: text('description'), // Descrição para ajudar na admin
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 
 

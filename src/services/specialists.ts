@@ -79,7 +79,11 @@ async function apiRequest<T>(
 
 export async function getAllSpecialists(): Promise<Specialist[]> {
   try {
-    return await apiRequest<Specialist[]>('/specialists')
+    const specialists = await apiRequest<Specialist[]>('/specialists')
+    console.log('GET ALL - Total de especialistas:', specialists.length)
+    console.log('GET ALL - Primeiro especialista:', specialists[0])
+    console.log('GET ALL - Regiões:', specialists.map(s => ({ nome: s.name, região: s.region })))
+    return specialists
   } catch (error) {
     console.error('Erro ao buscar especialistas:', error)
     throw error

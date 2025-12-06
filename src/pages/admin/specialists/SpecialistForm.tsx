@@ -83,8 +83,10 @@ export default function SpecialistForm() {
   useEffect(() => {
     if (isEditing) {
       const specialist = specialists.find((s) => s.id === Number(id))
+      console.log('FORM LOAD - Especialista encontrado:', specialist)
+      console.log('FORM LOAD - Região do especialista:', specialist?.region)
       if (specialist) {
-        form.reset({
+        const formData = {
           name: specialist.name,
           role: specialist.role,
           region: specialist.region,
@@ -97,7 +99,10 @@ export default function SpecialistForm() {
           coordsLat: specialist.coords.lat,
           coordsLng: specialist.coords.lng,
           customImage: specialist.customImage || '',
-        })
+        }
+        console.log('FORM LOAD - Dados para resetar formulário:', formData)
+        console.log('FORM LOAD - Região nos dados:', formData.region)
+        form.reset(formData)
       } else {
         navigate('/admin/specialists')
       }
@@ -237,8 +242,9 @@ export default function SpecialistForm() {
                   <FormItem>
                     <FormLabel>Região</FormLabel>
                     <Select
+                      key={field.value || 'no-region'}
                       onValueChange={field.onChange}
-                      value={field.value}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>

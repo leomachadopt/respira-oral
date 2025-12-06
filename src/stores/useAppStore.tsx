@@ -55,6 +55,8 @@ export const AppStoreProvider = ({
         testimonialsService.getAllTestimonials(),
         evaluationsService.getAllEvaluations(),
       ])
+      console.log('REFRESH - Especialistas carregados:', specialistsData.length)
+      console.log('REFRESH - Regiões:', specialistsData.map(s => ({ nome: s.name, região: s.region })))
       setSpecialists(specialistsData)
       setBlogPosts(postsData)
       setTestimonials(testimonialsData)

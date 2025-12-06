@@ -74,6 +74,15 @@ export const testimonials = pgTable('testimonials', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// Tabela de Configurações do Sistema
+export const settings = pgTable('settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(), // Ex: 'ai_report_prompt', 'openai_api_key'
+  value: text('value').notNull(), // Valor da configuração
+  description: text('description'), // Descrição para ajudar na admin
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 export type Specialist = typeof specialists.$inferSelect
 export type NewSpecialist = typeof specialists.$inferInsert
 export type BlogPost = typeof blogPosts.$inferSelect
@@ -82,3 +91,5 @@ export type Evaluation = typeof evaluations.$inferSelect
 export type NewEvaluation = typeof evaluations.$inferInsert
 export type Testimonial = typeof testimonials.$inferSelect
 export type NewTestimonial = typeof testimonials.$inferInsert
+export type Setting = typeof settings.$inferSelect
+export type NewSetting = typeof settings.$inferInsert
