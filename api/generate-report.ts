@@ -133,7 +133,7 @@ export default async function handler(
       messages: [
         {
           role: 'system',
-          content: 'Você é a Dra. Ro, especialista em respiração oral infantil. Sempre responda em português de Portugal.',
+          content: 'Você é a Dra. Ro, especialista em respiração oral infantil. Sempre responda em português de Portugal. IMPORTANTE: Escreva relatórios EXTENSOS e NARRATIVOS, NUNCA use listas com marcadores ou enumerações. Todo o conteúdo deve ser em texto corrido e bem desenvolvido.',
         },
         {
           role: 'user',
@@ -141,7 +141,7 @@ export default async function handler(
         },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 4000,
     })
 
     const report = completion.choices[0]?.message?.content
