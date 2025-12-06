@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import ReactMarkdown from 'react-markdown'
 import { EvaluationData, PortugalRegion, Specialist } from '@/types'
 import { analyzeEvaluation } from '@/services/aiAnalysis'
 import { findBestSpecialist, getUserLocation } from '@/services/specialistMatching'
@@ -561,28 +562,56 @@ export function AIChat() {
 
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                'flex w-full',
-                msg.sender === 'user' ? 'justify-end' : 'justify-start',
-              )}
-            >
+          {messages.map((msg) => {
+            // Detectar se é um relatório (texto longo com markdown)
+            const isReport = msg.sender === 'ai' && msg.text.includes('**') && msg.text.length > 500
+
+            return (
               <div
+                key={msg.id}
                 className={cn(
-                  'max-w-[80%] p-3 rounded-2xl animate-fade-in',
-                  msg.sender === 'user'
-                    ? 'bg-primary text-white rounded-tr-none'
-                    : 'bg-muted text-foreground rounded-tl-none',
+                  'flex w-full',
+                  msg.sender === 'user' ? 'justify-end' : 'justify-start',
                 )}
               >
-                <p className="text-sm md:text-base leading-relaxed">
-                  {msg.text}
-                </p>
+                <div
+                  className={cn(
+                    isReport ? 'max-w-full' : 'max-w-[80%]',
+                    'p-3 rounded-2xl animate-fade-in',
+                    msg.sender === 'user'
+                      ? 'bg-primary text-white rounded-tr-none'
+                      : isReport
+                      ? 'bg-white border-2 border-primary/20 rounded-tl-none'
+                      : 'bg-muted text-foreground rounded-tl-none',
+                  )}
+                >
+                  {isReport ? (
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-primary mb-3" {...props} />,
+                          h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-primary mb-2 mt-4" {...props} />,
+                          h3: ({ node, ...props }) => <h3 className="text-md font-semibold text-primary mb-2 mt-3" {...props} />,
+                          p: ({ node, ...props }) => <p className="text-sm leading-relaxed mb-2" {...props} />,
+                          ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
+                          ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
+                          li: ({ node, ...props }) => <li className="text-sm" {...props} />,
+                          strong: ({ node, ...props }) => <strong className="font-semibold text-primary" {...props} />,
+                          hr: ({ node, ...props }) => <hr className="my-4 border-primary/20" {...props} />,
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-sm md:text-base leading-relaxed">
+                      {msg.text}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
 
           {isLoading && (
             <div className="flex justify-start">
