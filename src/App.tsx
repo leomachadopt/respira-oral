@@ -24,6 +24,7 @@ import PostForm from './pages/admin/blog/PostForm'
 import TestimonialList from './pages/admin/testimonials/TestimonialList'
 import TestimonialForm from './pages/admin/testimonials/TestimonialForm'
 import EvaluationList from './pages/admin/evaluations/EvaluationList'
+import Settings from './pages/admin/Settings'
 
 const router = createBrowserRouter([
   {
@@ -110,6 +111,10 @@ const router = createBrowserRouter([
       {
         path: 'evaluations',
         element: <EvaluationList />,
+      },
+      {
+        path: 'settings',
+        element: <Settings />,
       },
     ],
   },

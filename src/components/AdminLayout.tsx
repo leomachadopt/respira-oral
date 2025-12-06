@@ -6,6 +6,7 @@ import {
   LogOut,
   Menu,
   Home,
+  Settings,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -18,6 +19,7 @@ export default function AdminLayout() {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Profissionais', path: '/admin/specialists', icon: Users },
     { name: 'Blog Posts', path: '/admin/blog', icon: FileText },
+    { name: 'Configurações IA', path: '/admin/settings', icon: Settings },
   ]
 
   const SidebarContent = () => (
