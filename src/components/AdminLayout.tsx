@@ -7,6 +7,7 @@ import {
   Menu,
   Home,
   Settings,
+  ClipboardList,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -18,6 +19,7 @@ export default function AdminLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Profissionais', path: '/admin/specialists', icon: Users },
+    { name: 'Avaliações', path: '/admin/evaluations', icon: ClipboardList },
     { name: 'Blog Posts', path: '/admin/blog', icon: FileText },
     { name: 'Configurações IA', path: '/admin/settings', icon: Settings },
   ]
