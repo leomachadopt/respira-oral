@@ -434,6 +434,18 @@ export function AIChat() {
         recommendedSpecialist = regionSpecialists[0] || null
       }
 
+      // Salvar relatório no banco de dados
+      if (evaluationId) {
+        await updateEvaluation(evaluationId, {
+          ...finalData,
+          analysisResult: {
+            report: report,
+            generatedAt: new Date().toISOString(),
+          },
+          recommendedSpecialistId: recommendedSpecialist?.id || null,
+        })
+      }
+
       // Salva resultado no sessionStorage para exibir
       sessionStorage.setItem('aiReport', report)
       sessionStorage.setItem('evaluationData', JSON.stringify(finalData))
