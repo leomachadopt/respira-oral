@@ -76,3 +76,5 @@ Atualizei o código para remover automaticamente `channel_binding=require` se es
 3. ✅ Teste `/api/test` primeiro
 4. ✅ Depois teste `/api/specialists`
 
+
+

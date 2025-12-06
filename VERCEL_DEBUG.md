@@ -134,3 +134,5 @@ Para testar se as API routes funcionam localmente:
 vercel logs [URL_DO_DEPLOY] --follow
 ```
 
+
+

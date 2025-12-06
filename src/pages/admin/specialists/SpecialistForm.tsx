@@ -140,6 +140,9 @@ export default function SpecialistForm() {
   }
 
   const onSubmit = (data: FormValues) => {
+    console.log('FORM - Dados do formulário:', data)
+    console.log('FORM - Região do formulário:', data.region)
+
     const specialistData: Omit<Specialist, 'id'> = {
       name: data.name,
       role: data.role,
@@ -159,6 +162,9 @@ export default function SpecialistForm() {
         : Math.floor(Math.random() * 100),
       ...(data.customImage && { customImage: data.customImage }),
     }
+
+    console.log('FORM - Dados a enviar:', specialistData)
+    console.log('FORM - Região a enviar:', specialistData.region)
 
     if (isEditing) {
       updateSpecialist(Number(id), specialistData)

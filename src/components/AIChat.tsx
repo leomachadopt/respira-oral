@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Send, Bot, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -44,6 +44,18 @@ export function AIChat() {
   const [regionSpecialists, setRegionSpecialists] = useState<Specialist[]>([])
   const [selectedSpecialistId, setSelectedSpecialistId] = useState<number | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const initializedRef = useRef(false)
+
+  // Calcula regiões disponíveis baseado nos profissionais cadastrados
+  const availableRegions = useMemo(() => {
+    const regions = new Set<PortugalRegion>()
+    specialists.forEach((specialist) => {
+      if (specialist.region) {
+        regions.add(specialist.region)
+      }
+    })
+    return Array.from(regions).sort()
+  }, [specialists])
 
   const addMessage = useCallback((msg: Omit<Message, 'id'>) => {
     setMessages((prev) => [
@@ -181,7 +193,7 @@ export function AIChat() {
           sender: 'ai',
           text: 'Para encontrarmos o especialista mais próximo, em qual região de Portugal você se encontra?',
           type: 'options',
-          options: PORTUGAL_REGIONS,
+          options: availableRegions,
         })
         break
       case 12:
@@ -216,7 +228,7 @@ export function AIChat() {
       default:
         break
     }
-  }, [step, addMessage, regionSpecialists])
+  }, [step, addMessage, regionSpecialists, availableRegions])
 
   // Função auxiliar para salvar/atualizar avaliação no banco
   const saveEvaluation = useCallback(
@@ -321,6 +333,10 @@ export function AIChat() {
           break
         case 11: // Region
           const selectedRegion = input as PortugalRegion
+          console.log('Região selecionada:', selectedRegion)
+          console.log('Total de profissionais:', specialists.length)
+          console.log('Profissionais com região:', specialists.map(s => ({ nome: s.name, região: s.region })))
+
           const updatedWithRegion = {
             ...userData,
             region: selectedRegion,
@@ -336,6 +352,8 @@ export function AIChat() {
           const specialistsInRegion = specialists.filter(
             (s) => s.region === selectedRegion
           )
+          console.log('Profissionais encontrados na região:', specialistsInRegion.length)
+          console.log('Profissionais:', specialistsInRegion.map(s => ({ nome: s.name, região: s.region })))
           setRegionSpecialists(specialistsInRegion)
 
           nextStep()
@@ -491,7 +509,8 @@ export function AIChat() {
 
   // Initial greeting
   useEffect(() => {
-    if (step === 0) {
+    if (step === 0 && !initializedRef.current) {
+      initializedRef.current = true
       addMessage({
         sender: 'ai',
         text: 'Olá! Sou a Dra. Ro e estou aqui para ajudar a compreender a respiração do seu filho. Vou fazer algumas perguntas para uma avaliação inicial focada em ortopedia funcional dos maxilares. Lembre-se, não faço diagnósticos, apenas ofereço orientação.',

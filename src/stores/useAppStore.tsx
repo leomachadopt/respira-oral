@@ -89,10 +89,18 @@ export const AppStoreProvider = ({
   const updateSpecialist = useCallback(
     async (id: number, data: Partial<Specialist>) => {
       try {
+        console.log('STORE - Atualizando especialista ID:', id)
+        console.log('STORE - Dados recebidos:', data)
+        console.log('STORE - Região recebida:', data.region)
+
         const updatedSpecialist = await specialistsService.updateSpecialist(
           id,
           data,
         )
+
+        console.log('STORE - Especialista atualizado:', updatedSpecialist)
+        console.log('STORE - Região retornada:', updatedSpecialist.region)
+
         setSpecialists((prev) =>
           prev.map((s) => (s.id === id ? updatedSpecialist : s)),
         )

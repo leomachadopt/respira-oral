@@ -144,3 +144,5 @@ Se após seguir todos os passos ainda houver problemas:
 - ✅ **Sempre use `DATABASE_URL`** para as API routes - ela fica segura no servidor
 - 🔒 As credenciais do banco de dados nunca devem ser expostas ao cliente
 
+
+

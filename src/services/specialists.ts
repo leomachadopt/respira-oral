@@ -114,10 +114,21 @@ export async function updateSpecialist(
   data: Partial<Omit<Specialist, 'id'>>,
 ): Promise<Specialist> {
   try {
-    return await apiRequest<Specialist>(`/specialists?id=${id}`, {
+    console.log('SERVICE - Enviando PUT para API')
+    console.log('SERVICE - ID:', id)
+    console.log('SERVICE - Dados:', data)
+    console.log('SERVICE - Região:', data.region)
+    console.log('SERVICE - Body JSON:', JSON.stringify(data))
+
+    const result = await apiRequest<Specialist>(`/specialists?id=${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
+
+    console.log('SERVICE - Resposta da API:', result)
+    console.log('SERVICE - Região retornada:', result.region)
+
+    return result
   } catch (error) {
     console.error('Erro ao atualizar especialista:', error)
     throw error

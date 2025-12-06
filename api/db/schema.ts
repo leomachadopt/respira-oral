@@ -74,3 +74,5 @@ export const testimonials = pgTable('testimonials', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+
+
