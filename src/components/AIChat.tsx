@@ -73,7 +73,7 @@ export function AIChat() {
       case 1:
         addMessage({
           sender: 'ai',
-          text: 'Para começarmos, como devemos chamá-lo(a)? Por favor, digite o seu nome:',
+          text: 'Para começarmos, qual é o nome do seu filho ou filha?',
           type: 'text',
         })
         break
