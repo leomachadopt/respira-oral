@@ -44,6 +44,7 @@ Seja profissional mas acolhedor. Não faça diagnósticos, apenas identifique pa
 export default function Settings() {
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT)
   const [openaiKey, setOpenaiKey] = useState('')
+  const [isKeyConfigured, setIsKeyConfigured] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -63,7 +64,9 @@ export default function Settings() {
         setPrompt(promptSetting.value)
       }
       if (keySetting) {
-        setOpenaiKey(keySetting.value)
+        // A chave vem mascarada do backend por segurança
+        setIsKeyConfigured(keySetting.value === '***configurada***')
+        setOpenaiKey('') // Nunca mostrar a chave real
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error)
@@ -77,18 +80,31 @@ export default function Settings() {
     try {
       setIsSaving(true)
 
-      await Promise.all([
+      const promises = [
         saveSetting(
           'ai_report_prompt',
           prompt,
           'Prompt usado pela IA para gerar relatórios de avaliação'
         ),
-        saveSetting(
-          'openai_api_key',
-          openaiKey,
-          'Chave da API OpenAI para gerar relatórios'
-        ),
-      ])
+      ]
+
+      // Só salvar a chave se o usuário digitou uma nova
+      if (openaiKey.trim().length > 0) {
+        promises.push(
+          saveSetting(
+            'openai_api_key',
+            openaiKey,
+            'Chave da API OpenAI para gerar relatórios'
+          )
+        )
+      }
+
+      await Promise.all(promises)
+
+      if (openaiKey.trim().length > 0) {
+        setIsKeyConfigured(true)
+        setOpenaiKey('') // Limpar o campo após salvar
+      }
 
       toast.success('Configurações salvas com sucesso!')
     } catch (error) {
@@ -135,15 +151,24 @@ export default function Settings() {
           <label className="text-sm font-medium text-foreground">
             Chave da API OpenAI
           </label>
+          {isKeyConfigured && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-2">
+              <p className="text-sm text-green-800">
+                ✓ Chave OpenAI já configurada e armazenada de forma segura no servidor
+              </p>
+            </div>
+          )}
           <input
             type="password"
             value={openaiKey}
             onChange={(e) => setOpenaiKey(e.target.value)}
-            placeholder="sk-..."
+            placeholder={isKeyConfigured ? "Digite para atualizar a chave..." : "sk-..."}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p className="text-xs text-muted-foreground">
-            Obtenha sua chave em{' '}
+            {isKeyConfigured
+              ? 'A chave atual está armazenada de forma segura. Digite uma nova chave apenas se desejar atualizá-la.'
+              : 'Obtenha sua chave em'}{' '}
             <a
               href="https://platform.openai.com/api-keys"
               target="_blank"
@@ -222,9 +247,26 @@ export default function Settings() {
         </div>
       </div>
 
+      <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+        <h3 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+          🔒 Segurança
+        </h3>
+        <ul className="text-sm text-green-800 space-y-1 list-disc list-inside">
+          <li>
+            A chave OpenAI é armazenada de forma <strong>criptografada</strong> no servidor
+          </li>
+          <li>
+            A chave <strong>NUNCA</strong> é enviada ao navegador ou exposta no frontend
+          </li>
+          <li>
+            Todas as chamadas à OpenAI são feitas exclusivamente pelo backend
+          </li>
+        </ul>
+      </div>
+
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
         <h3 className="font-semibold text-amber-900 mb-2">
-          ⚠️ Informações Importantes
+          ℹ️ Informações
         </h3>
         <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
           <li>
@@ -236,10 +278,6 @@ export default function Settings() {
             reais da avaliação
           </li>
           <li>Teste o prompt após fazer alterações para garantir bons resultados</li>
-          <li>
-            A chave da API OpenAI é armazenada de forma segura e nunca é exposta
-            no frontend
-          </li>
         </ul>
       </div>
     </div>

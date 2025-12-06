@@ -34,11 +34,38 @@ export default async function handler(
           return res.status(404).json({ error: 'Configuração não encontrada' })
         }
 
-        return res.status(200).json(result[0])
+        const setting = result[0]
+
+        // SEGURANÇA: Nunca retornar a chave da API OpenAI ao frontend
+        if (setting.key === 'openai_api_key') {
+          return res.status(200).json({
+            id: setting.id,
+            key: setting.key,
+            value: '***configurada***', // Não expor a chave
+            description: setting.description,
+            updatedAt: setting.updatedAt,
+            configured: true,
+          })
+        }
+
+        return res.status(200).json(setting)
       } else {
         // Buscar todas as configurações
         const result = await database.select().from(settings)
-        return res.status(200).json(result)
+
+        // SEGURANÇA: Mascarar chave OpenAI em listagens
+        const maskedResults = result.map((setting) => {
+          if (setting.key === 'openai_api_key') {
+            return {
+              ...setting,
+              value: '***configurada***',
+              configured: true,
+            }
+          }
+          return setting
+        })
+
+        return res.status(200).json(maskedResults)
       }
     }
 
