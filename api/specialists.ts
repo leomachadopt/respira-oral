@@ -145,6 +145,8 @@ export default async function handler(
 
     if (req.method === 'POST') {
       const data = req.body
+      console.log('POST - Dados recebidos:', JSON.stringify(data, null, 2))
+      console.log('POST - Região recebida:', data.region)
 
       const result = await database
         .insert(specialists)
@@ -164,6 +166,9 @@ export default async function handler(
           customImage: data.customImage || null,
         })
         .returning()
+
+      console.log('POST - Resultado do banco:', JSON.stringify(result[0], null, 2))
+      console.log('POST - Região salva no banco:', result[0].region)
 
       const specialist = result[0]
       return res.status(201).json({
@@ -192,6 +197,9 @@ export default async function handler(
       }
 
       const data = req.body
+      console.log('PUT - ID:', id)
+      console.log('PUT - Dados recebidos:', JSON.stringify(data, null, 2))
+      console.log('PUT - Região recebida:', data.region)
       const updateData: any = {}
 
       if (data.name) updateData.name = data.name
@@ -213,6 +221,8 @@ export default async function handler(
 
       updateData.updatedAt = new Date()
 
+      console.log('PUT - Dados para atualizar:', JSON.stringify(updateData, null, 2))
+
       const result = await database
         .update(specialists)
         .set(updateData)
@@ -224,6 +234,8 @@ export default async function handler(
       }
 
       const specialist = result[0]
+      console.log('PUT - Resultado do banco:', JSON.stringify(specialist, null, 2))
+      console.log('PUT - Região salva no banco:', specialist.region)
       return res.status(200).json({
         id: specialist.id,
         name: specialist.name,
