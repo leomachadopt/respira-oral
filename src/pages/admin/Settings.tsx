@@ -179,37 +179,27 @@ export default function Settings() {
           <div className="text-xs text-muted-foreground space-y-1">
             <p className="font-semibold">Variáveis disponíveis:</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-              <code className="bg-muted px-1 rounded">{'{'}{'}name}'}</code>
+              <code className="bg-muted px-1 rounded">{'{name}'}</code>
               <span>Nome do responsável</span>
-              <code className="bg-muted px-1 rounded">{'{'}{'}whatsapp}'}</code>
+              <code className="bg-muted px-1 rounded">{'{whatsapp}'}</code>
               <span>WhatsApp</span>
-              <code className="bg-muted px-1 rounded">{'{'}{'}age}'}</code>
+              <code className="bg-muted px-1 rounded">{'{age}'}</code>
               <span>Idade da criança</span>
-              <code className="bg-muted px-1 rounded">
-                {'{'}{'}breathingSigns}'
-              </code>
+              <code className="bg-muted px-1 rounded">{'{breathingSigns}'}</code>
               <span>Sinais de respiração</span>
-              <code className="bg-muted px-1 rounded">
-                {'{'}{'}dentalIssues}'
-              </code>
+              <code className="bg-muted px-1 rounded">{'{dentalIssues}'}</code>
               <span>Problemas dentários</span>
-              <code className="bg-muted px-1 rounded">{'{'}{'}oralHabits}'}</code>
+              <code className="bg-muted px-1 rounded">{'{oralHabits}'}</code>
               <span>Hábitos orais</span>
-              <code className="bg-muted px-1 rounded">{'{'}{'}posture}'}</code>
+              <code className="bg-muted px-1 rounded">{'{posture}'}</code>
               <span>Postura</span>
-              <code className="bg-muted px-1 rounded">
-                {'{'}{'}speechIssues}'
-              </code>
+              <code className="bg-muted px-1 rounded">{'{speechIssues}'}</code>
               <span>Problemas de fala</span>
-              <code className="bg-muted px-1 rounded">
-                {'{'}{'}sleepQuality}'
-              </code>
+              <code className="bg-muted px-1 rounded">{'{sleepQuality}'}</code>
               <span>Qualidade do sono</span>
-              <code className="bg-muted px-1 rounded">
-                {'{'}{'}previousTreatment}'
-              </code>
+              <code className="bg-muted px-1 rounded">{'{previousTreatment}'}</code>
               <span>Tratamento anterior</span>
-              <code className="bg-muted px-1 rounded">{'{'}{'}region}'}</code>
+              <code className="bg-muted px-1 rounded">{'{region}'}</code>
               <span>Região de Portugal</span>
             </div>
           </div>
@@ -242,7 +232,7 @@ export default function Settings() {
             avaliação
           </li>
           <li>
-            As variáveis entre chaves {'{'}{'}'}...{'}'}  serão substituídas pelos dados
+            As variáveis entre chaves (ex: {'{name}'}) serão substituídas pelos dados
             reais da avaliação
           </li>
           <li>Teste o prompt após fazer alterações para garantir bons resultados</li>
